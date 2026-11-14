@@ -257,17 +257,26 @@
   const resRows = (L) => L.map((r) => `<div class="prow"><div class="th clock">${hm(r.at).split(' ')[1]}</div><div class="t"><b>${esc(r.title)}</b><span>${chip(r.b)} ${dayLabel(ymd(r.at))} ${hm(r.at)}에 올라가요</span></div></div>`).join('');
   function feedView() {
     const L = blogs();
-    const posts = allPosts().filter((p) => S.filter === 'all' || p.b.id === S.filter);
-    const days = {}; for (const p of posts) (days[ymd(p.at)] = days[ymd(p.at)] || []).push(p);
+    const body = () => {
+      const posts = allPosts().filter((p) => S.filter === 'all' || p.b.id === S.filter);
+      const days = {}; for (const p of posts) (days[ymd(p.at)] = days[ymd(p.at)] || []).push(p);
+      return `${upcoming().length ? `<div class="day-h"><span class="dot live blink"></span>올라갈 예정 · ${upcoming().length}개</div><div class="card plist">${resRows(upcoming())}</div>` : ''}
+      ${Object.keys(days).sort().reverse().map((d) => `<div class="day-h">${dayLabel(d)} · ${days[d].length}개</div><div class="card plist">${postRows(days[d])}</div>`).join('') || '<div class="card empty">아직 올라간 글이 없어요</div>'}`;
+    };
     main.innerHTML = `<div class="hello-wrap"><img class="gh-h" src="assets/ghost/focus.webp" alt=""><h1 class="hello">올라간 글</h1></div>
-      <div class="filters"><button class="${S.filter === 'all' ? 'on' : ''}" data-f="all">전체</button>${L.map((b) => `<button class="${S.filter === b.id ? 'on' : ''}" data-f="${esc(b.id)}">${esc(label(b))}</button>`).join('')}</div>
-      ${upcoming().length ? `<div class="day-h"><span class="dot live blink"></span>올라갈 예정 · ${upcoming().length}개</div><div class="card plist">${resRows(upcoming())}</div>` : ''}
-      ${Object.keys(days).sort().reverse().map((d) => `<div class="day-h">${dayLabel(d)} · ${days[d].length}개</div><div class="card plist">${postRows(days[d])}</div>`).join('') || '<div class="card empty">아직 올라간 글이 없어요</div>'}
+      <div class="filters"><i class="pill"></i><button class="${S.filter === 'all' ? 'on' : ''}" data-f="all">전체</button>${L.map((b) => `<button class="${S.filter === b.id ? 'on' : ''}" data-f="${esc(b.id)}">${esc(label(b))}</button>`).join('')}</div>
+      <div class="feed-body">${body()}</div>
       <p class="upd">블로그마다 최근 30개까지 보여요</p>`;
-    main.querySelector('.filters').onclick = (e) => {
+    // 11/14 «그냥 옆으로 해야지» — 필터는 검은 알약만 옆으로 미끄러지고, 아래 목록만 살짝 바뀐다(화면 전체를 다시 그리지 않음)
+    const F = main.querySelector('.filters'), pill = F.querySelector('.pill');
+    const place = (still) => { const on = F.querySelector('button.on'); if (!on) return; if (still) pill.style.transition = 'none';
+      pill.style.width = on.offsetWidth + 'px'; pill.style.transform = `translateX(${on.offsetLeft}px)`; if (still) { void pill.offsetWidth; pill.style.transition = ''; } };
+    requestAnimationFrame(() => place(true));
+    F.onclick = (e) => {
       const b = e.target.closest('button'); if (!b || b.dataset.f === S.filter) return;
-      const x = main.querySelector('.filters').scrollLeft;
-      S.filter = b.dataset.f; feedView(); main.querySelector('.filters').scrollLeft = x; animate('in');
+      S.filter = b.dataset.f; F.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b)); place(false);
+      b.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+      const fb = main.querySelector('.feed-body'); fb.innerHTML = body(); fb.classList.remove('swap'); void fb.offsetWidth; fb.classList.add('swap');
     };
   }
 
