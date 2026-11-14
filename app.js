@@ -80,12 +80,24 @@
   tabbar.onclick = (e) => { const b = e.target.closest('button'); if (!b) return; S.tab = b.dataset.t; S.blog = null; render(); scrollTo(0, 0); };
   $('#brand').onclick = () => { S.tab = 'home'; S.blog = null; render(); scrollTo(0, 0); };
   // 「나」 단추는 내 블로그 화면으로 (11/14 «나를 누르면 왜 로그아웃이 되냐») · 다른 사람으로 들어가기는 알림 탭 맨 아래
-  me.onclick = () => { const b = S.data && S.data.blogs.find((x) => x.who === S.who); if (b) { S.blog = b.id; render(); scrollTo(0, 0); } };
+  const myBlog = () => S.data && S.data.blogs.find((x) => x.who === S.who);
+  const meName = () => { const b = myBlog(); return `${S.who}${b && b.nick ? ' · ' + b.nick : ''}`; };
+  // 「나」 단추: 누가 들어와 있는지 보여 주는 창 (11/14 «나 누르면 내가 누구인지 … 나 하노 이런 식으로»)
+  me.onclick = () => {
+    const b = myBlog(), root = $('#sheet-root');
+    root.innerHTML = `<div class="dim"></div><div class="sheet"><img class="gh-m" src="assets/ghost/hello.webp" alt="">
+      <h2>${esc(meName())}</h2><p>${esc(S.who === '나' ? '나' : S.who)}(으)로 들어와 있어요${b ? `<br>${esc(b.name)} · ${esc(b.id)}` : ''}</p>
+      <button class="btn" id="sh-my">내 블로그 보기</button><button class="btn gray" id="sh-out">다른 가족으로 들어가기</button><button class="btn gray" id="sh-x">닫기</button></div>`;
+    const close = () => (root.innerHTML = '');
+    root.querySelector('.dim').onclick = close; $('#sh-x').onclick = close;
+    $('#sh-my').onclick = () => { close(); if (b) { S.blog = b.id; render(); scrollTo(0, 0); } };
+    $('#sh-out').onclick = () => { close(); logout(); };
+  };
   function logout() { LS.set('mb:code', null); LS.set('mb:cache', null); S = { ...S, code: null, who: null, data: null, blog: null, tab: 'home' }; lockView(); }
 
   function render() {
     if (!S.data) return lockView();
-    me.hidden = false; me.textContent = S.who === '나' ? '나' : S.who;
+    me.hidden = false; me.textContent = meName();
     drawTabs();
     if (S.blog) return detailView(S.data.blogs.find((b) => b.id === S.blog));
     ({ home: homeView, feed: feedView, bell: bellView })[S.tab]();
@@ -189,7 +201,7 @@
     else body = `<div class="card"><div class="row"><div><b>새 글 알림</b><p>가족 블로그에 글이 올라가면 바로 알려 드려요.<br>내 글은 「내 블로그에 새 글이 올라갔어요」로 와요.</p></div><button class="sw ${on ? 'on' : ''}" id="sw" aria-label="새 글 알림"></button></div></div>
       <div class="card"><div class="row"><div><b>어떤 알림이 오나요?</b><p>· 예약해 둔 글이 실제로 올라갔을 때<br>· 엄마·아빠·하노 블로그에 새 글이 올라왔을 때<br>15분마다 확인해서 알려 드려요.</p></div></div></div>`;
     main.innerHTML = `<div class="hello-wrap"><img class="gh-h" src="assets/ghost/peek.webp" alt=""><h1 class="hello">알림</h1></div>${body}
-      <div class="card"><div class="row"><div><b>${esc(S.who === '나' ? '나' : S.who)}(으)로 들어와 있어요</b><p>다른 가족 비밀번호로 들어가려면 눌러 주세요.</p></div><button class="me" id="logout" type="button">바꾸기</button></div></div>`;
+      <div class="card"><div class="row"><div><b>${esc(meName())}(으)로 들어와 있어요</b><p>다른 가족 비밀번호로 들어가려면 눌러 주세요.</p></div><button class="me" id="logout" type="button">바꾸기</button></div></div>`;
     $('#logout').onclick = logout;
     const sw = $('#sw');
     if (sw) sw.onclick = async () => {

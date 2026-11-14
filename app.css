@@ -150,3 +150,11 @@ h1.hello b { color: var(--g); }
 .hello-wrap .hello { order: 0; }
 .gh-h { order: 1; width: 76px; height: 76px; object-fit: contain; margin: 0 4px 14px 0; flex: none; animation: float 3s ease-in-out infinite; }
 .gh-s { display: block; width: 72px; height: 72px; margin: 0 auto 8px; object-fit: contain; }
+
+.dim { position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,.4); animation: fade .2s; }
+.sheet { position: fixed; left: 50%; bottom: 0; z-index: 301; width: min(100%, 480px); transform: translateX(-50%); padding: 28px 22px calc(22px + env(safe-area-inset-bottom)); background: var(--card); border-radius: 28px 28px 0 0; text-align: center; animation: up .28s cubic-bezier(.2,.9,.3,1); }
+.sheet h2 { margin: 6px 0 6px; font-size: 22px; font-weight: 700; }
+.sheet p { margin: 0 0 22px; font-size: 15px; color: var(--t3); line-height: 1.5; }
+.gh-m { width: 96px; height: 96px; object-fit: contain; }
+@keyframes fade { from { opacity: 0; } }
+@keyframes up { from { transform: translate(-50%, 100%); } }
