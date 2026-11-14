@@ -406,7 +406,8 @@
   // ── 애드포스트 3단계 배너 (11/14 «1. 가입해요 · 며칠 있다가 신청해요 이런 식으로») — 나·엄마에게만, 기기별 진행 기록
   const AD_APPLY = '2026-11-30'; // 첫 블로그 등록 신청 날 (글·방문자 기록이 쌓인 뒤)
   const adKey = () => 'mb:ad:' + S.who;
-  const adGet = () => { try { return JSON.parse(LS.get(adKey()) || '{}'); } catch (e) { return {}; } };
+  const AD_JOINED = { 나: '2026-11-14', 엄마: '2026-11-14' }; // 둘 다 11/14 가입 확인(애드포스트 화면)
+  const adGet = () => { let o = {}; try { o = JSON.parse(LS.get(adKey()) || '{}'); } catch (e) {} if (AD_JOINED[S.who]) o.join = 1; return o; };
   const adSet = (o) => LS.set(adKey(), JSON.stringify({ ...adGet(), ...o }));
   const dday = (ymdStr) => Math.ceil((new Date(ymdStr + 'T00:00:00+09:00') - Date.now()) / 864e5);
   function adCard() {
