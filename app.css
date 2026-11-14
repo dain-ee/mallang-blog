@@ -142,3 +142,5 @@ h1.hello b { color: var(--g); }
 .sum .v { font-size: 22px; white-space: nowrap; }
 .sum .v small { font-size: 14px; }
 .sum > div { padding: 0 12px; }
+
+[hidden] { display: none !important; }
