@@ -162,8 +162,8 @@
     tabbar.innerHTML = TABS.map(([k, t]) => `<button class="${cur === k ? 'on' : ''}${cur === k && pop ? ' pop' : ''}" data-t="${k}">${ICON[k]}<span>${t}</span></button>`).join('');
     drawTabs.last = cur;
   }
-  tabbar.onclick = (e) => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.t === S.tab && !S.blog) return scrollTo({ top: 0, behavior: 'smooth' }); S.tab = b.dataset.t; S.blog = null; scrollTo(0, 0); render('in'); };
-  $('#brand').onclick = () => { S.tab = 'home'; S.blog = null; scrollTo(0, 0); render('in'); };
+  tabbar.onclick = (e) => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.t === S.tab && !S.blog) return main.scrollTo({ top: 0, behavior: 'smooth' }); S.tab = b.dataset.t; S.blog = null; main.scrollTo(0, 0); render('in'); };
+  $('#brand').onclick = () => { S.tab = 'home'; S.blog = null; main.scrollTo(0, 0); render('in'); };
   const myBlog = () => S.data && S.data.blogs.find((x) => x.who === S.who);
   const meName = () => { const ns = (S.data ? S.data.blogs : []).filter((x) => x.who === S.who && x.nick).map((x) => x.nick); return `나${ns.length ? ' · ' + ns.join('·') : ''}`; }; // 11/14 «엄마에겐 엄마가 나야» — 들어온 사람은 언제나 「나」
 
@@ -186,7 +186,7 @@
       <h2>${esc(meName())}</h2><p>${esc(S.who)}로 들어와 있어요${b ? `<br>${esc(b.name)} · ${esc(b.id)}` : ''}</p>
       <button class="btn" id="sh-my">내 블로그 보기</button><button class="btn gray" id="sh-out">다른 가족으로 들어가기</button><button class="btn gray" id="sh-x">닫기</button>`);
     $('#sh-x').onclick = () => closeSheet();
-    $('#sh-my').onclick = () => closeSheet(() => { if (b) { S.blog = b.id; scrollTo(0, 0); render('fwd'); } });
+    $('#sh-my').onclick = () => closeSheet(() => { if (b) { S.blog = b.id; main.scrollTo(0, 0); render('fwd'); } });
     $('#sh-out').onclick = () => closeSheet(logout);
   };
   function logout() { LS.set('mb:code', null); LS.set('mb:cache', null); S = { ...S, code: null, who: null, data: null, blog: null, tab: 'home' }; lockView(); }
@@ -382,7 +382,7 @@
       ol.innerHTML = st.map((x, i) => `<li style="--n:${i}"><i>${i + 1}</i><div><b>${x[0]}</b><span>${x[1]}</span></div></li>`).join('');
       ol.classList.remove('swap'); void ol.offsetWidth; ol.classList.add('swap'); };
     $('#g-x').onclick = () => closeSheet();
-    const gb = $('#g-bell'); if (gb) gb.onclick = () => closeSheet(() => { S.tab = 'bell'; S.blog = null; scrollTo(0, 0); render('in'); });
+    const gb = $('#g-bell'); if (gb) gb.onclick = () => closeSheet(() => { S.tab = 'bell'; S.blog = null; main.scrollTo(0, 0); render('in'); });
     $('#g-done').onclick = () => closeSheet(() => {
       LS.set('mb:guide', 'done'); hap('on');
       const b = $('#guide-b'); if (b) { b.style.height = b.offsetHeight + 'px'; void b.offsetHeight; b.classList.add('bye'); setTimeout(() => b.remove(), 380); }
@@ -392,8 +392,8 @@
 
   function bind() {
     { const gb = $('#guide-b'); if (gb) gb.onclick = () => openGuide(); }
-    main.querySelectorAll('[data-blog]').forEach((el) => (el.onclick = () => { S.blog = el.dataset.blog; scrollTo(0, 0); render('fwd'); }));
-    main.querySelectorAll('[data-go]').forEach((el) => (el.onclick = () => { S.tab = el.dataset.go; scrollTo(0, 0); render('in'); }));
+    main.querySelectorAll('[data-blog]').forEach((el) => (el.onclick = () => { S.blog = el.dataset.blog; main.scrollTo(0, 0); render('fwd'); }));
+    main.querySelectorAll('[data-go]').forEach((el) => (el.onclick = () => { S.tab = el.dataset.go; main.scrollTo(0, 0); render('in'); }));
   }
 
   // ── 시작: 유령이 인사하며 기다리다가(오래 걸리면 찾는 얼굴로), 자료가 오면 스르르 사라져요

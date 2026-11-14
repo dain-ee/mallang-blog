@@ -338,3 +338,10 @@ body.loading .brand img { animation: bob .5s ease-in-out infinite alternate; }
 .steps li span { display: block; margin-top: 2px; font-size: 13px; color: var(--t3); line-height: 1.45; }
 .steps.swap li { animation: fadeIn .22s ease-out backwards; animation-delay: calc(var(--n) * 30ms); }
 .sheet { max-height: 92vh; overflow-y: auto; }
+
+/* 11/14 «하단 탭 자꾸 폰에서 스크롤하면 내려간다» — 페이지 전체가 아니라 가운데 내용만 스크롤 → 브라우저 주소창·아래 막대가 접혔다 펴지지 않아 탭바가 제자리 */
+html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+body { display: flex; flex-direction: column; height: 100dvh; }
+.top { position: relative; flex: none; }
+.main { flex: 1; min-height: 0; width: 100%; box-sizing: border-box; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; scrollbar-width: none; }
+.main::-webkit-scrollbar { display: none; }
