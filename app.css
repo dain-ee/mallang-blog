@@ -345,3 +345,24 @@ body { display: flex; flex-direction: column; height: 100dvh; }
 .top { position: relative; flex: none; }
 .main { flex: 1; min-height: 0; width: 100%; box-sizing: border-box; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; scrollbar-width: none; }
 .main::-webkit-scrollbar { display: none; }
+
+/* 애드포스트 3단계 배너 */
+.adc { padding: 20px 22px 8px; }
+.adc-h b { display: block; font-size: 17px; font-weight: 700; }
+.adc-h span { display: block; margin-top: 2px; font-size: 13px; color: var(--t3); }
+.ad-steps { list-style: none; margin: 12px 0 0; padding: 0; }
+.ad-steps li { position: relative; display: flex; gap: 12px; padding: 10px 0 14px; }
+.ad-steps li:not(:last-child)::before { content: ""; position: absolute; left: 12px; top: 40px; bottom: -4px; width: 2px; background: var(--fill); }
+.ad-steps li > i { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 13px; font-weight: 700; background: var(--fill); color: var(--t3); margin-top: 1px; }
+.ad-steps li.now > i { background: var(--g); color: #fff; box-shadow: 0 0 0 4px var(--g-soft); }
+.ad-steps li.next > i { background: var(--g-soft); color: var(--g-d); }
+.ad-steps li.done > i { background: var(--g-soft); color: var(--g-d); }
+.ad-steps li > div { flex: 1; min-width: 0; }
+.ad-steps li b { display: block; font-size: 15px; font-weight: 700; color: var(--t1); }
+.ad-steps li.wait b, .ad-steps li.done b { color: var(--t3); font-weight: 600; }
+.ad-steps li span { display: block; margin-top: 2px; font-size: 13px; color: var(--t3); line-height: 1.45; }
+.ad-steps li em { font-style: normal; font-weight: 700; color: var(--g-d); }
+.ad-btns { display: flex; gap: 8px; margin-top: 10px; }
+.mini { height: 36px; padding: 0 14px; border: 0; border-radius: 10px; background: var(--fill); color: var(--t2); font: inherit; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; text-decoration: none; transition: transform .15s var(--ease); }
+.mini.g { background: var(--g); color: #fff; }
+.mini:active { transform: scale(.95); }

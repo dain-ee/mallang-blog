@@ -222,6 +222,7 @@
     main.innerHTML = `<div class="hello-wrap"><img class="gh-h" src="assets/ghost/${gh}.webp" alt=""><h1 class="hello">${hi}</h1></div>
       ${guideBanner()}
       ${earnCard(L)}
+      ${adCard()}
       <div class="sec-h"><h2>우리 가족 블로그</h2></div>
       ${L.map(blogCard).join('')}
       <div class="sec-h"><h2>방금 올라간 글</h2><button class="more" data-go="feed">전체 보기</button></div>
@@ -244,7 +245,7 @@
     return `<div class="card earn"><div class="k">이번 달 가족이 번 돈</div>
       <div class="tot num">${won(sum)}</div><div class="sub">${sumT ? `오늘 +${fmt(sumT)}원` : '이번 달 합계'}</div>
       <div class="list">${L.map(row).join('')}</div>
-      ${has.length < L.length ? '<div class="tip">애드포스트(네이버 광고 수익)에 가입할 수 있게 되면 신청할게요. 신청하면 번 돈이 여기에 자동으로 보여요.</div>' : ''}</div>`;
+</div>`;
   }
 
   const allPosts = () => blogs().flatMap((b) => b.posts.map((p) => ({ ...p, b }))).sort((a, b) => b.at.localeCompare(a.at));
@@ -390,7 +391,44 @@
     });
   }
 
+  // ── 애드포스트 3단계 배너 (11/14 «1. 가입해요 · 며칠 있다가 신청해요 이런 식으로») — 나·엄마에게만, 기기별 진행 기록
+  const AD_APPLY = '2026-11-30'; // 첫 블로그 등록 신청 날 (글·방문자 기록이 쌓인 뒤)
+  const adKey = () => 'mb:ad:' + S.who;
+  const adGet = () => { try { return JSON.parse(LS.get(adKey()) || '{}'); } catch (e) { return {}; } };
+  const adSet = (o) => LS.set(adKey(), JSON.stringify({ ...adGet(), ...o }));
+  const dday = (ymdStr) => Math.ceil((new Date(ymdStr + 'T00:00:00+09:00') - Date.now()) / 864e5);
+  function adCard() {
+    if (S.who === '아빠') return '';
+    const st = adGet(); if (st.ok) return '';
+    const d = dday(AD_APPLY), md = `${+AD_APPLY.slice(5, 7)}월 ${+AD_APPLY.slice(8, 10)}일`;
+    const res = st.apply ? new Date(new Date(st.apply).getTime() + 7 * 864e5) : null; // 영업일 5일 ≈ 7일
+    const step = (n, state, title, desc, btns = '') => `<li class="${state}"><i>${state === 'done' ? '✓' : n}</i><div><b>${title}</b><span>${desc}</span>${btns}</div></li>`;
+    const s1 = st.join ? step(1, 'done', '애드포스트 가입', '가입했어요')
+      : step(1, 'now', '애드포스트 가입하기', '지금 바로 할 수 있어요 · 본인 휴대폰 인증이 필요해요',
+        `<div class="ad-btns"><a class="mini g" href="https://adpost.naver.com/publisher/agreement" target="_blank" rel="noopener">가입하러 가기</a><button class="mini" data-ad="join">가입했어요</button></div>`);
+    const s2 = st.apply ? step(2, 'done', '블로그 등록 신청', `${+st.apply.slice(5, 7)}월 ${+st.apply.slice(8, 10)}일에 신청했어요`)
+      : d > 0 ? step(2, st.join ? 'next' : 'wait', `${md}에 블로그 등록 신청`, `<em>D-${d}</em> · 글과 방문자가 조금 더 쌓이면 신청해요`)
+      : step(2, st.join ? 'now' : 'wait', '블로그 등록 신청하기', '이제 신청할 때예요 · 미디어 관리 → 미디어 등록 → 블로그',
+        st.join ? `<div class="ad-btns"><a class="mini g" href="https://adpost.naver.com/" target="_blank" rel="noopener">신청하러 가기</a><button class="mini" data-ad="apply">신청했어요</button></div>` : '');
+    const s3 = st.apply ? step(3, 'now', '심사 결과 기다리기', `${res.getMonth() + 1}월 ${res.getDate()}일쯤 나와요 · 「보류」면 2주 뒤 다시 신청해요`,
+        `<div class="ad-btns"><button class="mini g" data-ad="ok">통과했어요</button><button class="mini" data-ad="again">보류됐어요</button></div>`)
+      : step(3, 'wait', '심사 통과하면 끝', '최대 5일 · 통과하면 광고가 붙고 번 돈이 위에 보여요');
+    return `<div class="card adc" id="adc"><div class="adc-h"><b>애드포스트로 돈 벌기</b><span>네이버 블로그 광고 수익</span></div><ol class="ad-steps">${s1}${s2}${s3}</ol></div>`;
+  }
+  function adBind() {
+    const c = $('#adc'); if (!c) return;
+    c.onclick = (e) => { const b = e.target.closest('[data-ad]'); if (!b) return;
+      const k = b.dataset.ad, today = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
+      if (k === 'join') { adSet({ join: 1 }); toast('가입 완료! 다음은 블로그 등록 신청이에요'); }
+      if (k === 'apply') { adSet({ apply: today }); toast('신청 완료! 결과를 기다려요'); }
+      if (k === 'again') { adSet({ apply: null, again: today }); toast('괜찮아요, 2주 뒤에 다시 신청해요'); }
+      if (k === 'ok') { adSet({ ok: 1 }); toast('축하해요! 이제 번 돈이 위에 보여요'); }
+      hap('on'); const n = document.createElement('div'); n.innerHTML = adCard(); c.replaceWith(n.firstElementChild || document.createTextNode('')); adBind();
+    };
+  }
+
   function bind() {
+    adBind();
     { const gb = $('#guide-b'); if (gb) gb.onclick = () => openGuide(); }
     main.querySelectorAll('[data-blog]').forEach((el) => (el.onclick = () => { S.blog = el.dataset.blog; main.scrollTo(0, 0); render('fwd'); }));
     main.querySelectorAll('[data-go]').forEach((el) => (el.onclick = () => { S.tab = el.dataset.go; main.scrollTo(0, 0); render('in'); }));
