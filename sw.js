@@ -3,7 +3,7 @@ self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
 self.addEventListener('push', (e) => {
   let d = {}; try { d = e.data ? e.data.json() : {}; } catch (x) { d = { body: e.data && e.data.text() }; }
-  e.waitUntil(self.registration.showNotification(d.title || '말랑블로그', { body: d.body || '', icon: 'assets/appicon/ghost-192.png', badge: 'assets/appicon/ghost-192.png', tag: d.tag || 'mb', data: { url: d.url || './' } }));
+  e.waitUntil(self.registration.showNotification(d.title || '말랑블로그', { body: d.body || '', icon: 'assets/appicon/mark-192.png', badge: 'assets/appicon/mark-192.png', tag: d.tag || 'mb', data: { url: d.url || './' } }));
 });
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
