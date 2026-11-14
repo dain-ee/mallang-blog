@@ -1,7 +1,7 @@
 /* 말랑블로그 (2026-11-14)
    «자기 블로그 글이 올라갔는지도 모를 수도 있거든 … 각 계정별로 한눈에»
    가족 비밀번호(나·엄마·아빠)로 들어오면 내 블로그에 「나」 표시를 하고, 세 블로그를 모두 보여 줘요.
-   자료는 scripts/collect.js 가 15분마다 모아 서버(blog_get)에 올려 둔 것을 읽어요.
+   자료는 scripts/collect.js 가 5분마다 모아 서버(blog_get)에 올려 둔 것을 읽어요.
    11/14 «애니메이션 꼼꼼하게 넣어 줘 햅틱이랑 … 탭 전환할 때, 로딩될 때 … 로딩될 때 그 유령도» */
 (() => {
   const CFG = window.BLOG_SYNC;
@@ -105,6 +105,13 @@
     document.body.classList.add('loading'); const t = performance.now();
     try { await load(); await wait(Math.max(0, 700 - (performance.now() - t))); render('none'); } catch (e) {}
     finally { refresh.on = false; document.body.classList.remove('loading'); }
+  }
+
+  async function quiet() {
+    if (!S.code || refresh.on || quiet.on) return; quiet.on = true;
+    const before = S.data && S.data.updated;
+    try { await load(); if (S.data.updated !== before && !root.querySelector('.sheet')) { const y = main.scrollTop; render('none'); main.scrollTop = y; } } catch (e) {}
+    finally { quiet.on = false; }
   }
 
   // ── 비밀번호
@@ -239,7 +246,7 @@
       ${L.map(blogCard).join('')}
       <div class="sec-h"><h2>방금 올라간 글</h2><button class="more" data-go="feed">전체 보기</button></div>
       <div class="card plist">${postRows(allPosts().slice(0, 5))}</div>
-      <p class="upd">${S.data.updated ? `${ago(S.data.updated) === '방금' ? '방금' : ago(S.data.updated) + '에'} 새로 모았어요 · 15분마다 바뀌어요` : ''}</p>`;
+      <p class="upd">${S.data.updated ? `${ago(S.data.updated) === '방금' ? '방금' : ago(S.data.updated) + '에'} 새로 모았어요 · 5분마다 바뀌어요` : ''}</p>`;
     bind();
   }
 
@@ -341,7 +348,7 @@
     else top = `<div class="card list">${li('bell', 'g' + (justOn ? ' ring' : ''), '새 글 알림', on ? '켜져 있어요 · 글이 올라가면 바로 알려 드려요' : '글이 올라가면 바로 알려 드려요', `<button class="sw ${on ? 'on' : ''}${justOn ? ' just' : ''}" id="sw" role="switch" aria-checked="${on}" aria-label="새 글 알림"></button>`)}</div>`;
     main.innerHTML = `<div class="hello-wrap"><img class="gh-h" src="assets/ghost/peek.webp" alt=""><h1 class="hello">알림</h1></div>${top}
       <div class="day-h">어떤 알림이 오나요?</div>
-      <div class="card list">${li('cal', 'g', '예약한 글이 올라갔어요', '예약해 둔 내 글이 실제로 올라가면')}${li('fam', 'b', '가족 새 글', `${esc(fam)} 블로그에 새 글이 올라오면`)}${li('clock', 'a', '15분마다 확인', '새 글이 있는지 알아서 살펴봐요')}</div>
+      <div class="card list">${li('cal', 'g', '예약한 글이 올라갔어요', '예약해 둔 내 글이 실제로 올라가면')}${li('fam', 'b', '가족 새 글', `${esc(fam)} 블로그에 새 글이 올라오면`)}${li('clock', 'a', '5분마다 확인', '새 글이 있는지 알아서 살펴봐요')}</div>
       <div class="day-h">들어와 있는 사람</div>
       <div class="card list"><button class="li link" id="logout" type="button"><span class="ic gray">${myBlog() && myBlog().photo ? `<img src="${esc(myBlog().photo)}" alt="" onerror="this.replaceWith(document.createRange().createContextualFragment(ICON_P))">` : ICON.person}</span><div class="tx"><b>${esc(meName())}</b><span>${esc(S.who)}로 들어와 있어요</span></div><span class="act">바꾸기<i>›</i></span></button></div>`;
     $('#logout').onclick = logout;
@@ -461,5 +468,10 @@
       clearTimeout(slow); splashOff(() => animate('in'));
     }
     document.addEventListener('visibilitychange', () => { if (!document.hidden && S.data) refresh(); });
+    // 11/14 «백그라운드로 업데이트 좀 잘해야» — 켜 둔 동안 1분마다 조용히 새로 받아, 바뀐 게 있을 때만 그 자리에서 다시 그림
+    setInterval(() => { if (!document.hidden && S.data) quiet(); }, 60e3);
+    addEventListener('online', () => S.data && quiet());
+    addEventListener('focus', () => S.data && quiet());
+    if (navigator.serviceWorker) navigator.serviceWorker.addEventListener('message', (e) => { if (e.data === 'mb:push' && S.data) quiet(); });
   })();
 })();
