@@ -116,7 +116,8 @@ h1.hello b { color: var(--g); }
 
 /* 비밀번호 */
 .lock { min-height: calc(100vh - 120px); display: grid; align-content: center; justify-items: center; text-align: center; padding: 20px 0 40px; }
-.lock img { width: 64px; height: 64px; border-radius: 18px; }
+.lock img.gh { width: 120px; height: 120px; object-fit: contain; animation: float 3s ease-in-out infinite; }
+@keyframes float { 50% { transform: translateY(-8px); } }
 .lock h1 { margin: 20px 0 6px; font-size: 22px; font-weight: 700; }
 .lock p { margin: 0; color: var(--t3); font-size: 15px; }
 .pins { display: flex; gap: 14px; margin: 32px 0 36px; }
@@ -144,3 +145,8 @@ h1.hello b { color: var(--g); }
 .sum > div { padding: 0 12px; }
 
 [hidden] { display: none !important; }
+
+.hello-wrap { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.hello-wrap .hello { order: 0; }
+.gh-h { order: 1; width: 76px; height: 76px; object-fit: contain; margin: 0 4px 14px 0; flex: none; animation: float 3s ease-in-out infinite; }
+.gh-s { display: block; width: 72px; height: 72px; margin: 0 auto 8px; object-fit: contain; }

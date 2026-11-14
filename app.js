@@ -45,7 +45,7 @@
   function lockView(msg) {
     tabbar.hidden = true; me.hidden = true;
     let pin = '';
-    main.innerHTML = `<div class="lock"><img src="icons/icon.svg" alt=""><h1>말랑블로그</h1><p>${esc(msg || '가족 비밀번호 4자리를 눌러 주세요')}</p>
+    main.innerHTML = `<div class="lock"><img class="gh" src="assets/ghost/hello.webp" alt=""><h1>말랑블로그</h1><p>${esc(msg || '가족 비밀번호 4자리를 눌러 주세요')}</p>
       <div class="pins" id="pins">${'<i></i>'.repeat(4)}</div>
       <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button data-n="${n}">${n}</button>`).join('')}<span></span><button data-n="0">0</button><button class="fn" data-n="del">지우기</button></div></div>`;
     const pins = $('#pins');
@@ -79,7 +79,9 @@
   }
   tabbar.onclick = (e) => { const b = e.target.closest('button'); if (!b) return; S.tab = b.dataset.t; S.blog = null; render(); scrollTo(0, 0); };
   $('#brand').onclick = () => { S.tab = 'home'; S.blog = null; render(); scrollTo(0, 0); };
-  me.onclick = () => { if (confirm('다른 사람으로 들어갈까요?')) { LS.set('mb:code', null); LS.set('mb:cache', null); S = { ...S, code: null, who: null, data: null }; lockView(); } };
+  // 「나」 단추는 내 블로그 화면으로 (11/14 «나를 누르면 왜 로그아웃이 되냐») · 다른 사람으로 들어가기는 알림 탭 맨 아래
+  me.onclick = () => { const b = S.data && S.data.blogs.find((x) => x.who === S.who); if (b) { S.blog = b.id; render(); scrollTo(0, 0); } };
+  function logout() { LS.set('mb:code', null); LS.set('mb:cache', null); S = { ...S, code: null, who: null, data: null, blog: null, tab: 'home' }; lockView(); }
 
   function render() {
     if (!S.data) return lockView();
@@ -107,7 +109,8 @@
     const L = blogs(), mine = L.find((b) => b.who === S.who);
     const vis = L.reduce((s, b) => s + (b.today || 0), 0), cnt = L.reduce((s, b) => s + todayPosts(b).length, 0);
     const name = S.who === '나' ? '' : S.who + ', ';
-    main.innerHTML = `<h1 class="hello">${esc(name)}오늘 ${mine ? `내 블로그에<br><b>${fmt(mine.today)}명</b>이 다녀갔어요` : '블로그 소식이에요'}</h1>
+    const gh = cnt ? 'yay' : 'idle';
+    main.innerHTML = `<div class="hello-wrap"><img class="gh-h" src="assets/ghost/${gh}.webp" alt=""><h1 class="hello">${esc(name)}오늘 ${mine ? `내 블로그에<br><b>${fmt(mine.today)}명</b>이 다녀갔어요` : '블로그 소식이에요'}</h1></div>
       <div class="card sum"><div><div class="k">가족 오늘 방문자</div><div class="v num">${fmt(vis)}<small>명</small></div></div>
         <div><div class="k">오늘 올라간 글</div><div class="v num">${cnt}<small>개</small></div></div>
         <div><div class="k">올라갈 예약</div><div class="v num">${L.reduce((s, b) => s + (b.reserved || []).length, 0)}<small>개</small></div></div></div>
@@ -121,7 +124,7 @@
 
   const allPosts = () => blogs().flatMap((b) => b.posts.map((p) => ({ ...p, b }))).sort((a, b) => b.at.localeCompare(a.at));
   function postRows(L) {
-    if (!L.length) return '<div class="empty">아직 올라간 글이 없어요</div>';
+    if (!L.length) return '<div class="empty"><img class="gh-s" src="assets/ghost/sleepy.webp" alt="">아직 올라간 글이 없어요</div>';
     return L.map((p) => `<a class="prow" href="${esc(p.link)}" target="_blank" rel="noopener">${p.img ? `<img class="th" src="${esc(p.img)}" alt="" loading="lazy" onerror="this.remove()">` : ''}
       <div class="t"><b>${esc(p.title)}</b><span>${chip(p.b)} ${hm(p.at)}${p.cat ? ' · ' + esc(p.cat) : ''}${p.reserved ? ' · 예약 글' : ''}</span></div></a>`).join('');
   }
@@ -132,7 +135,7 @@
     const L = blogs();
     const posts = allPosts().filter((p) => S.filter === 'all' || p.b.id === S.filter);
     const days = {}; for (const p of posts) (days[ymd(p.at)] = days[ymd(p.at)] || []).push(p);
-    main.innerHTML = `<h1 class="hello">올라간 글</h1>
+    main.innerHTML = `<div class="hello-wrap"><img class="gh-h" src="assets/ghost/focus.webp" alt=""><h1 class="hello">올라간 글</h1></div>
       <div class="filters"><button class="${S.filter === 'all' ? 'on' : ''}" data-f="all">전체</button>${L.map((b) => `<button class="${S.filter === b.id ? 'on' : ''}" data-f="${esc(b.id)}">${esc(label(b))}</button>`).join('')}</div>
       ${upcoming().length ? `<div class="day-h">올라갈 예정 · ${upcoming().length}개</div><div class="card plist">${resRows(upcoming())}</div>` : ''}
       ${Object.keys(days).sort().reverse().map((d) => `<div class="day-h">${dayLabel(d)} · ${days[d].length}개</div><div class="card plist">${postRows(days[d])}</div>`).join('') || '<div class="card empty">아직 올라간 글이 없어요</div>'}
@@ -185,7 +188,9 @@
     else if (!PUSH_OK) body = `<div class="card"><div class="row"><div><b>이 브라우저는 알림을 못 받아요</b><p>휴대폰 사파리(홈 화면 앱)나 크롬에서 열어 주세요.</p></div></div></div>`;
     else body = `<div class="card"><div class="row"><div><b>새 글 알림</b><p>가족 블로그에 글이 올라가면 바로 알려 드려요.<br>내 글은 「내 블로그에 새 글이 올라갔어요」로 와요.</p></div><button class="sw ${on ? 'on' : ''}" id="sw" aria-label="새 글 알림"></button></div></div>
       <div class="card"><div class="row"><div><b>어떤 알림이 오나요?</b><p>· 예약해 둔 글이 실제로 올라갔을 때<br>· 엄마·아빠·하노 블로그에 새 글이 올라왔을 때<br>15분마다 확인해서 알려 드려요.</p></div></div></div>`;
-    main.innerHTML = `<h1 class="hello">알림</h1>${body}`;
+    main.innerHTML = `<div class="hello-wrap"><img class="gh-h" src="assets/ghost/peek.webp" alt=""><h1 class="hello">알림</h1></div>${body}
+      <div class="card"><div class="row"><div><b>${esc(S.who === '나' ? '나' : S.who)}(으)로 들어와 있어요</b><p>다른 가족 비밀번호로 들어가려면 눌러 주세요.</p></div><button class="me" id="logout" type="button">바꾸기</button></div></div>`;
+    $('#logout').onclick = logout;
     const sw = $('#sw');
     if (sw) sw.onclick = async () => {
       sw.disabled = true;
