@@ -165,7 +165,7 @@
   tabbar.onclick = (e) => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.t === S.tab && !S.blog) return scrollTo({ top: 0, behavior: 'smooth' }); S.tab = b.dataset.t; S.blog = null; scrollTo(0, 0); render('in'); };
   $('#brand').onclick = () => { S.tab = 'home'; S.blog = null; scrollTo(0, 0); render('in'); };
   const myBlog = () => S.data && S.data.blogs.find((x) => x.who === S.who);
-  const meName = () => { const b = myBlog(); return `${S.who}${b && b.nick ? ' · ' + b.nick : ''}`; };
+  const meName = () => { const b = myBlog(); return `나${b && b.nick ? ' · ' + b.nick : ''}`; }; // 11/14 «엄마에겐 엄마가 나야» — 들어온 사람은 언제나 「나」
 
   // ── 아래에서 올라오는 창
   function openSheet(html) {
@@ -238,11 +238,12 @@
     const row = (b) => { const e = E[b.who];
       const right = e && e.month != null
         ? `<b class="num">${won(e.month)}</b><span>${e.today != null ? `오늘 +${fmt(e.today)}원` : e.at ? `${esc(ago(e.at))} 기준` : '이번 달'}</span>`
-        : '<b class="off">아직 수익 없음</b><span class="off">애드포스트 가입 전</span>';
+        : `<b class="num">${won(0)}</b><span>이번 달</span>`;
       return `<div class="er"><img class="ava r" src="${esc(b.photo)}" alt="" onerror="this.style.visibility='hidden'"><div class="nm"><b>${esc(b.who === '나' ? (S.who === '나' ? '나' : b.nick || '하노') : b.who)}${b.who === S.who && S.who !== '나' ? ' <span class="chip me">나</span>' : ''}</b><span>${esc(b.name)}</span></div><div class="amt">${right}</div></div>`; };
     return `<div class="card earn"><div class="k">이번 달 가족이 번 돈</div>
-      ${has.length ? `<div class="tot num">${won(sum)}</div><div class="sub">${sumT ? `오늘 +${fmt(sumT)}원` : '이번 달 합계'}</div>` : '<div class="tot off">아직 수익 없음</div><div class="sub">애드포스트 가입 전이에요 · 가입하면 여기에 보여요</div>'}
-      <div class="list">${L.map(row).join('')}</div></div>`;
+      <div class="tot num">${won(sum)}</div><div class="sub">${sumT ? `오늘 +${fmt(sumT)}원` : '이번 달 합계'}</div>
+      <div class="list">${L.map(row).join('')}</div>
+      ${has.length < L.length ? '<div class="tip">애드포스트(네이버 광고 수익)에 가입할 수 있게 되면 신청할게요. 신청하면 번 돈이 여기에 자동으로 보여요.</div>' : ''}</div>`;
   }
 
   const allPosts = () => blogs().flatMap((b) => b.posts.map((p) => ({ ...p, b }))).sort((a, b) => b.at.localeCompare(a.at));
