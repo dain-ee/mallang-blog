@@ -165,7 +165,7 @@
   tabbar.onclick = (e) => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.t === S.tab && !S.blog) return scrollTo({ top: 0, behavior: 'smooth' }); S.tab = b.dataset.t; S.blog = null; scrollTo(0, 0); render('in'); };
   $('#brand').onclick = () => { S.tab = 'home'; S.blog = null; scrollTo(0, 0); render('in'); };
   const myBlog = () => S.data && S.data.blogs.find((x) => x.who === S.who);
-  const meName = () => { const b = myBlog(); return `나${b && b.nick ? ' · ' + b.nick : ''}`; }; // 11/14 «엄마에겐 엄마가 나야» — 들어온 사람은 언제나 「나」
+  const meName = () => { const ns = (S.data ? S.data.blogs : []).filter((x) => x.who === S.who && x.nick).map((x) => x.nick); return `나${ns.length ? ' · ' + ns.join('·') : ''}`; }; // 11/14 «엄마에겐 엄마가 나야» — 들어온 사람은 언제나 「나」
 
   // ── 아래에서 올라오는 창
   function openSheet(html) {
@@ -215,10 +215,10 @@
   }
 
   function homeView() {
-    const L = blogs(), mine = L.find((b) => b.who === S.who);
+    const L = blogs(), mine = L.find((b) => b.who === S.who), mineV = L.filter((b) => b.who === S.who).reduce((s, b) => s + (b.today || 0), 0); // 블로그가 둘이면 합쳐서
     const vis = L.reduce((s, b) => s + (b.today || 0), 0), cn = L.reduce((s, b) => s + todayPosts(b).length, 0);
     const gh = cn ? 'yay' : 'idle';
-    const hi = mine ? `오늘 ${esc(owner(mine))} 블로그에<br>${mine.today ? `<b>${cnt(mine.today)}명</b>이 다녀갔어요` : '아직 다녀간 사람이 없어요'}` : '블로그 소식이에요';
+    const hi = mine ? `오늘 ${esc(owner(mine))} 블로그에<br>${mineV ? `<b>${cnt(mineV)}명</b>이 다녀갔어요` : '아직 다녀간 사람이 없어요'}` : '블로그 소식이에요';
     main.innerHTML = `<div class="hello-wrap"><img class="gh-h" src="assets/ghost/${gh}.webp" alt=""><h1 class="hello">${hi}</h1></div>
       ${guideBanner()}
       ${earnCard(L)}
@@ -265,7 +265,7 @@
       ${Object.keys(days).sort().reverse().map((d) => `<div class="day-h">${dayLabel(d)} · ${days[d].length}개</div><div class="card plist">${postRows(days[d])}</div>`).join('') || '<div class="card empty">아직 올라간 글이 없어요</div>'}`;
     };
     main.innerHTML = `<div class="hello-wrap"><img class="gh-h" src="assets/ghost/focus.webp" alt=""><h1 class="hello">올라간 글</h1></div>
-      <div class="filters"><i class="pill"></i><button class="${S.filter === 'all' ? 'on' : ''}" data-f="all">전체</button>${L.map((b) => `<button class="${S.filter === b.id ? 'on' : ''}" data-f="${esc(b.id)}">${esc(label(b))}</button>`).join('')}</div>
+      <div class="filters"><i class="pill"></i><button class="${S.filter === 'all' ? 'on' : ''}" data-f="all">전체</button>${L.map((b) => `<button class="${S.filter === b.id ? 'on' : ''}" data-f="${esc(b.id)}">${esc(L.filter((x) => x.who === b.who).length > 1 ? b.nick || b.name : label(b))}</button>`).join('')}</div>
       <div class="feed-body">${body()}</div>
       <p class="upd">블로그마다 최근 30개까지 보여요</p>`;
     // 11/14 «그냥 옆으로 해야지» — 필터는 검은 알약만 옆으로 미끄러지고, 아래 목록만 살짝 바뀐다(화면 전체를 다시 그리지 않음)
