@@ -159,10 +159,11 @@
     fam: '<svg viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8.5" r="3.6" fill="currentColor"/><path d="M2.6 19.5c.6-3.6 3.2-5.8 6.4-5.8s5.8 2.2 6.4 5.8z" fill="currentColor"/><circle cx="17" cy="9.2" r="2.7" fill="currentColor" opacity=".5"/><path d="M16.6 13.9c2.7.2 4.3 2.2 4.8 5.6h-4.2c-.2-2-.8-3.9-2-5.2.4-.2.9-.4 1.4-.4z" fill="currentColor" opacity=".5"/></svg>',
     clock: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" fill="currentColor"/><path d="M12 7.5V12l3 2" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     person: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8.5" r="4" fill="currentColor"/><path d="M4.5 20c.7-4 3.7-6.5 7.5-6.5s6.8 2.5 7.5 6.5z" fill="currentColor"/></svg>',
+    views: '<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="12" width="4" height="8" rx="1.5" fill="currentColor"/><rect x="10" y="7" width="4" height="13" rx="1.5" fill="currentColor"/><rect x="16" y="4" width="4" height="16" rx="1.5" fill="currentColor"/></svg>',
     share: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 3.5v11M8 7.5l4-4 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.5 11H6.5a2 2 0 0 0-2 2v5.5a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V13a2 2 0 0 0-2-2h-1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   };
   window.ICON_P = ICON.person;
-  const TABS = [['home', '홈'], ['feed', '올라간 글'], ['bell', '알림']];
+  const TABS = [['home', '홈'], ['feed', '올라간 글'], ['views', '조회수'], ['bell', '알림']];
   function drawTabs(kind) {
     tabbar.hidden = false;
     const cur = S.blog ? null : S.tab, pop = kind !== 'none' && cur && cur !== drawTabs.last;
@@ -203,7 +204,7 @@
     me.hidden = false; { const b = myBlog(); me.innerHTML = `${b && b.photo ? `<img src="${esc(b.photo)}" alt="" onerror="this.remove()">` : ''}<span>${esc(meName())}</span>`; }
     drawTabs(kind);
     if (S.blog) detailView(S.data.blogs.find((b) => b.id === S.blog));
-    else ({ home: homeView, feed: feedView, bell: bellView })[S.tab]();
+    else ({ home: homeView, feed: feedView, views: viewsView, bell: bellView })[S.tab]();
     animate(kind);
   }
 
@@ -313,6 +314,33 @@
       b.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
       const fb = main.querySelector('.feed-body'); fb.innerHTML = body(); fb.classList.remove('swap'); void fb.offsetWidth; fb.classList.add('swap');
     };
+  }
+
+  // 글별 조회수 (11/14 «어떤 글이 조회수인지 알려 주는 탭») — 네이버 통계의 「게시물 조회수 순위」, 주인 계정으로 30분마다 모아요
+  function viewsView() {
+    const L = blogs().filter((b) => (b.views || []).length);
+    if (!L.find((b) => b.id === S.vf)) S.vf = (L[0] || {}).id;
+    const body = () => {
+      const b = L.find((x) => x.id === S.vf); if (!b) return '<div class="card empty"><img class="gh-s" src="assets/ghost/sleepy.webp" alt="">아직 모은 조회수가 없어요</div>';
+      const img = Object.fromEntries(b.posts.map((p) => [p.link, p.img]));
+      return b.views.filter((v) => v.date === todayY() || v.items.some((x) => x.cv > 0)).map((v) => {
+        const items = v.items.filter((x) => x.cv > 0), max = Math.max(1, ...items.map((x) => x.cv)), sum = items.reduce((s, x) => s + x.cv, 0);
+        const head = v.date === todayY() ? `오늘 · ${hm(v.at)} 기준` : dayLabel(v.date);
+        return `<div class="day-h">${esc(head)} · 조회 ${fmt(sum)}</div><div class="card plist">${items.length ? items.map((x, i) => `<a class="prow vrow" href="${esc(x.link)}" target="_blank" rel="noopener"><span class="vrk ${i < 3 ? 'top' : ''}">${i + 1}</span>${img[x.link] ? `<img class="th" src="${esc(img[x.link])}" alt="" loading="lazy" onerror="this.remove()">` : ''}
+          <div class="t"><b>${esc(x.title || '(제목 없는 옛 글)')}</b><span class="vb"><i style="width:${Math.max(4, Math.round((x.cv / max) * 100))}%"></i><em class="num">${fmt(x.cv)}</em></span></div></a>`).join('') : '<div class="empty">아직 읽은 사람이 없어요</div>'}</div>`;
+      }).join('');
+    };
+    main.innerHTML = `<div class="hello-wrap"><img class="gh-h" src="assets/ghost/focus.webp" alt=""><h1 class="hello">많이 읽힌 글</h1></div>
+      ${L.length ? `<div class="filters"><i class="pill"></i>${L.map((b) => `<button class="${S.vf === b.id ? 'on' : ''}" data-v="${esc(b.id)}">${esc(b.name)}</button>`).join('')}</div>` : ''}
+      <div class="feed-body">${body()}</div>
+      <p class="upd">네이버 통계의 글별 조회수예요 · 30분마다 모아요</p>`;
+    const F = main.querySelector('.filters'), pill = F && F.querySelector('.pill');
+    const place = (still) => { const on = F.querySelector('button.on'); if (!on) return; if (still) pill.style.transition = 'none';
+      pill.style.width = on.offsetWidth + 'px'; pill.style.transform = `translateX(${on.offsetLeft}px)`; if (still) { void pill.offsetWidth; pill.style.transition = ''; } };
+    if (F) requestAnimationFrame(() => place(true));
+    if (F) F.onclick = (e) => { const bt = e.target.closest('button'); if (!bt || bt.dataset.v === S.vf) return; S.vf = bt.dataset.v;
+      F.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === bt)); place(false);
+      const fb = main.querySelector('.feed-body'); fb.innerHTML = body(); fb.classList.remove('swap'); void fb.offsetWidth; fb.classList.add('swap'); };
   }
 
   function detailView(b) {

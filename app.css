@@ -393,3 +393,9 @@ body { display: flex; flex-direction: column; height: 100dvh; }
 .ar .t .who { font-weight: 700; color: var(--g-d); }
 .ar .t small { display: block; font-size: 12px; color: var(--t3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ar .ago { flex: none; font-size: 12px; color: var(--t4); }
+/* 조회수 탭 */
+.vrow .vrk { background: none; height: auto; width: 22px; flex: none; text-align: center; font-size: 15px; font-weight: 700; color: var(--t3); font-variant-numeric: tabular-nums; }
+.vrow .vrk.top { color: var(--g-d); }
+.vrow .vb { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.vrow .vb i { display: block; height: 6px; border-radius: 3px; background: var(--g); min-width: 4px; }
+.vrow .vb em { font-style: normal; font-size: 13px; font-weight: 700; color: var(--t1); }
