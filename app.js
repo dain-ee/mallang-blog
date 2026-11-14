@@ -220,6 +220,7 @@
     const gh = cn ? 'yay' : 'idle';
     const hi = mine ? `오늘 ${esc(owner(mine))} 블로그에<br>${mine.today ? `<b>${cnt(mine.today)}명</b>이 다녀갔어요` : '아직 다녀간 사람이 없어요'}` : '블로그 소식이에요';
     main.innerHTML = `<div class="hello-wrap"><img class="gh-h" src="assets/ghost/${gh}.webp" alt=""><h1 class="hello">${hi}</h1></div>
+      ${guideBanner()}
       ${earnCard(L)}
       <div class="sec-h"><h2>우리 가족 블로그</h2></div>
       ${L.map(blogCard).join('')}
@@ -342,7 +343,55 @@
     };
   }
 
+  // ── 홈 화면 앱 + 알림 켜기 안내 (11/14 «애플이면 사파리에서 어떻게, 갤럭시면 어떻게 … 다 했다고 하면 배너 지워지게»)
+  const guideDone = () => LS.get('mb:guide') === 'done' || LS.get('mb:push') === '1';
+  function guideBanner() {
+    if (guideDone()) return '';
+    return `<button class="card guide-b" id="guide-b" type="button"><img src="assets/ghost/hello.webp" alt=""><div class="tx"><b>새 글 알림 받기</b><span>휴대폰 홈 화면에 말랑블로그를 추가해 주세요 · 1분이면 돼요</span></div><span class="chev">›</span></button>`;
+  }
+  const GUIDE = {
+    ios: { name: '아이폰', steps: [
+      ['<b>사파리</b>로 이 주소를 열어요', '카카오톡 안에서 열렸다면 오른쪽 아래 ⋯ → 「Safari로 열기」'],
+      ['아래쪽 가운데 <b>공유 버튼</b>을 눌러요', '네모 위로 화살표가 나온 모양이에요'],
+      ['<b>「홈 화면에 추가」</b>를 누르고, 오른쪽 위 <b>「추가」</b>', '안 보이면 목록을 아래로 내려 보세요'],
+      ['홈 화면에 생긴 <b>말랑블로그</b> 아이콘으로 다시 열어요', '비밀번호를 한 번 더 넣어요'],
+      ['아래 <b>알림</b> 탭 → <b>새 글 알림</b> 켜기 → <b>「허용」</b>', '이제 글이 올라가면 알림이 와요'],
+    ] },
+    and: { name: '갤럭시', steps: [
+      ['<b>삼성 인터넷</b>이나 <b>크롬</b>으로 이 주소를 열어요', '카카오톡 안에서 열렸다면 오른쪽 위 ⋮ → 「다른 브라우저로 열기」'],
+      ['메뉴를 눌러요', '삼성 인터넷은 오른쪽 아래 ≡ · 크롬은 오른쪽 위 ⋮'],
+      ['<b>「현재 페이지 추가 → 홈 화면」</b>', '크롬은 「홈 화면에 추가」 또는 「앱 설치」 → 「설치」'],
+      ['홈 화면에 생긴 <b>말랑블로그</b> 아이콘으로 열어요', '비밀번호를 한 번 더 넣어요'],
+      ['아래 <b>알림</b> 탭 → <b>새 글 알림</b> 켜기 → <b>「허용」</b>', '이제 글이 올라가면 알림이 와요'],
+    ] },
+  };
+  function openGuide(dev) {
+    dev = dev || (IOS ? 'ios' : 'and');
+    const g = GUIDE[dev];
+    openSheet(`<h2>새 글 알림 받는 법</h2>
+      <div class="seg" id="g-seg"><i class="pill"></i>${Object.keys(GUIDE).map((k) => `<button type="button" data-d="${k}" class="${k === dev ? 'on' : ''}">${GUIDE[k].name}</button>`).join('')}</div>
+      <ol class="steps">${g.steps.map((st, i) => `<li style="--n:${i}"><i>${i + 1}</i><div><b>${st[0]}</b><span>${st[1]}</span></div></li>`).join('')}</ol>
+      ${standalone() ? '<button class="btn" id="g-bell">알림 켜러 가기</button>' : ''}
+      <button class="btn ${standalone() ? 'gray' : ''}" id="g-done">다 했어요</button><button class="btn gray" id="g-x">나중에 할게요</button>`);
+    const seg = $('#g-seg'), pill = seg.querySelector('.pill'), on = seg.querySelector('.on');
+    pill.style.width = on.offsetWidth + 'px'; pill.style.transform = `translateX(${on.offsetLeft - 4}px)`;
+    seg.onclick = (e) => { const b = e.target.closest('button'); if (!b || b.classList.contains('on')) return;
+      seg.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
+      pill.style.width = b.offsetWidth + 'px'; pill.style.transform = `translateX(${b.offsetLeft - 4}px)`;
+      const st = GUIDE[b.dataset.d].steps, ol = root.querySelector('.steps');
+      ol.innerHTML = st.map((x, i) => `<li style="--n:${i}"><i>${i + 1}</i><div><b>${x[0]}</b><span>${x[1]}</span></div></li>`).join('');
+      ol.classList.remove('swap'); void ol.offsetWidth; ol.classList.add('swap'); };
+    $('#g-x').onclick = () => closeSheet();
+    const gb = $('#g-bell'); if (gb) gb.onclick = () => closeSheet(() => { S.tab = 'bell'; S.blog = null; scrollTo(0, 0); render('in'); });
+    $('#g-done').onclick = () => closeSheet(() => {
+      LS.set('mb:guide', 'done'); hap('on');
+      const b = $('#guide-b'); if (b) { b.style.height = b.offsetHeight + 'px'; void b.offsetHeight; b.classList.add('bye'); setTimeout(() => b.remove(), 380); }
+      toast('좋아요! 알림 준비 끝');
+    });
+  }
+
   function bind() {
+    { const gb = $('#guide-b'); if (gb) gb.onclick = () => openGuide(); }
     main.querySelectorAll('[data-blog]').forEach((el) => (el.onclick = () => { S.blog = el.dataset.blog; scrollTo(0, 0); render('fwd'); }));
     main.querySelectorAll('[data-go]').forEach((el) => (el.onclick = () => { S.tab = el.dataset.go; scrollTo(0, 0); render('in'); }));
   }

@@ -316,3 +316,25 @@ body.loading .brand img { animation: bob .5s ease-in-out infinite alternate; }
 .filters button, .filters button.on { position: relative; z-index: 1; background: transparent; height: 34px; }
 .filters button.on { color: #fff; }
 .filters .pill { position: absolute; z-index: 0; left: 0; top: 4px; height: 34px; border-radius: 99px; background: var(--t1); transition: transform .32s var(--ease), width .32s var(--ease); }
+
+/* 홈 화면 앱 안내 배너 · 안내 창 */
+.guide-b { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 18px; border: 0; text-align: left; font: inherit; color: inherit; background: var(--g-soft); overflow: hidden; transition: height .35s var(--ease), padding .35s var(--ease), margin .35s var(--ease), opacity .25s; }
+.guide-b img { width: 44px; height: 44px; object-fit: contain; flex: none; animation: float 3s ease-in-out infinite; }
+.guide-b .tx { flex: 1; min-width: 0; }
+.guide-b b { display: block; font-size: 16px; font-weight: 700; color: var(--g-d); }
+.guide-b .tx span { display: block; margin-top: 2px; font-size: 13px; color: var(--t2); line-height: 1.4; }
+.guide-b .chev { color: var(--g-d); font-size: 20px; }
+.guide-b:active { transform: scale(.98); }
+.guide-b.bye { height: 0 !important; padding-top: 0; padding-bottom: 0; margin-top: 0; margin-bottom: 0; opacity: 0; }
+.sheet .seg { position: relative; display: flex; gap: 0; width: 100%; padding: 4px; margin: 4px 0 16px; background: var(--bg); border-radius: 14px; }
+.sheet .seg button { position: relative; z-index: 1; flex: 1; height: 38px; border: 0; background: transparent; font: inherit; font-size: 15px; font-weight: 600; color: var(--t3); transition: color .2s; }
+.sheet .seg button.on { color: var(--t1); }
+.sheet .seg .pill { position: absolute; z-index: 0; left: 4px; top: 4px; height: 38px; border-radius: 10px; background: var(--card); box-shadow: 0 1px 4px rgba(0,0,0,.08); transition: transform .3s var(--ease), width .3s var(--ease); }
+.steps { list-style: none; margin: 0 0 18px; padding: 0; text-align: left; }
+.steps li { display: flex; gap: 12px; padding: 10px 2px; }
+.steps li i { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--g); color: #fff; font-style: normal; font-size: 13px; font-weight: 700; display: grid; place-items: center; margin-top: 1px; }
+.steps li b { display: block; font-size: 15px; font-weight: 500; color: var(--t1); line-height: 1.45; }
+.steps li b b { display: inline; font-weight: 700; }
+.steps li span { display: block; margin-top: 2px; font-size: 13px; color: var(--t3); line-height: 1.45; }
+.steps.swap li { animation: fadeIn .22s ease-out backwards; animation-delay: calc(var(--n) * 30ms); }
+.sheet { max-height: 92vh; overflow-y: auto; }
