@@ -366,3 +366,16 @@ body { display: flex; flex-direction: column; height: 100dvh; }
 .mini { height: 36px; padding: 0 14px; border: 0; border-radius: 10px; background: var(--fill); color: var(--t2); font: inherit; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; text-decoration: none; transition: transform .15s var(--ease); }
 .mini.g { background: var(--g); color: #fff; }
 .mini:active { transform: scale(.95); }
+
+/* 어디서 왔나요 */
+.inflow { margin: 4px 0 12px; }
+.if-h { display: flex; align-items: baseline; justify-content: space-between; }
+.if-h b { font-size: 14px; font-weight: 700; color: var(--t2); }
+.if-h span { font-size: 12px; color: var(--t3); }
+.if-bar { display: flex; gap: 2px; height: 10px; margin-top: 8px; border-radius: 99px; overflow: hidden; background: var(--fill); }
+.if-bar i { display: block; min-width: 6px; transform-origin: left; animation: ifGrow .6s var(--ease) backwards; }
+@keyframes ifGrow { from { transform: scaleX(0); } }
+.if-lg { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 8px; font-size: 13px; color: var(--t2); }
+.if-lg span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.if-lg i { width: 8px; height: 8px; border-radius: 50%; }
+.if-lg b { font-weight: 700; color: var(--t1); font-variant-numeric: tabular-nums; }

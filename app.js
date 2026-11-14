@@ -200,6 +200,17 @@
     animate(kind);
   }
 
+  // 어디서 왔나요 (11/14 «검색인지 메인 홈인지 … 너무 어려운 말 쓰지 말고 딱 간단하게»)
+  const IN_C = { '검색': 'var(--g)', '네이버 첫 화면': '#3182f6', '블로그 안': '#ffb331', '다른 곳': 'var(--t4)' };
+  function inflowBox(b) {
+    const f = b.inflow; if (!f || !f.total) return '';
+    const isToday = f.date === todayY(), when = isToday ? `오늘 ${hm(f.at)} 기준` : '어제';
+    const pc = (n) => Math.round((n / f.total) * 100);
+    return `<div class="inflow"><div class="if-h"><b>어디서 왔나요</b><span>${esc(when)}</span></div>
+      <div class="if-bar">${f.parts.map((p) => `<i style="flex:${p.n};background:${IN_C[p.k] || 'var(--t4)'}"></i>`).join('')}</div>
+      <div class="if-lg">${f.parts.map((p) => `<span><i style="background:${IN_C[p.k] || 'var(--t4)'}"></i>${esc(p.k)} <b>${pc(p.n)}%</b></span>`).join('')}</div></div>`;
+  }
+
   function blogCard(b) {
     const last = b.posts[0], tp = todayPosts(b).length;
     const fresh = last && Date.now() - new Date(last.at) < 6 * 3600e3;
@@ -209,6 +220,7 @@
       <div class="stats"><div><div class="k">오늘 방문자</div><div class="v big num">${cnt(b.today)}</div></div>
         <div><div class="k">오늘 올린 글</div><div class="v num">${tp}개</div></div>
         <div><div class="k">이웃</div><div class="v num">${cnt(b.neighbors)}</div></div></div>
+      ${inflowBox(b)}
       ${(b.reserved || []).length ? `<div class="last res"><span class="dot live blink"></span><div class="t"><b>예약 ${b.reserved.length}개 · 다음 글 ${hm(b.reserved[0].at)}</b><span>${esc(b.reserved[0].title)}</span></div></div>` : ''}
       ${last ? `<div class="last"><span class="dot ${fresh ? 'live' : 'old'}"></span><div class="t"><b>${esc(last.title)}</b><span>마지막 글 · ${ago(last.at)}</span></div></div>` : `<div class="last"><span class="dot old"></span><div class="t"><b>아직 올린 글이 없어요</b></div></div>`}
     </div>`;
