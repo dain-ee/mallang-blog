@@ -270,7 +270,7 @@ body.loading .brand img { animation: bob .5s ease-in-out infinite alternate; }
 .er .amt b { display: block; font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .er .amt b small { font-size: 14px; margin-left: 1px; }
 .er .amt b.off { font-size: 14px; font-weight: 600; }
-.er .amt span { display: block; margin-top: 2px; font-size: 12px; color: var(--g-d); font-weight: 600; }
+.er .amt > span { display: block; margin-top: 2px; font-size: 12px; color: var(--g-d); font-weight: 600; }
 
 /* 알림: 토스 설정처럼 한 카드 안 목록 */
 .card.list { padding: 4px 0; }
@@ -305,7 +305,7 @@ body.loading .brand img { animation: bob .5s ease-in-out infinite alternate; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
 }
 .li .ic img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-.er .amt span.off { color: var(--t4); font-weight: 500; }
+.er .amt > span.off { color: var(--t4); font-weight: 500; }
 .er .nm b { display: flex; align-items: center; gap: 6px; }
 .er .nm b .chip { display: inline-flex; margin: 0; font-size: 12px; color: var(--g-d); }
 
