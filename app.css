@@ -379,3 +379,17 @@ body { display: flex; flex-direction: column; height: 100dvh; }
 .if-lg span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
 .if-lg i { width: 8px; height: 8px; border-radius: 50%; }
 .if-lg b { font-weight: 700; color: var(--t1); font-variant-numeric: tabular-nums; }
+
+/* 네이버 활동 */
+.actc { padding: 18px 0 6px; }
+.act-h { padding: 0 22px 10px; }
+.act-h b { display: block; font-size: 16px; font-weight: 700; }
+.act-h span { display: block; margin-top: 2px; font-size: 13px; color: var(--t3); }
+.ar { display: flex; align-items: center; gap: 12px; padding: 12px 22px; border-top: 1px solid var(--fill); color: inherit; text-decoration: none; }
+.ar:active { background: var(--fill2); }
+.ai { flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: 15px; background: var(--fill); color: var(--t3); }
+.ai.like { background: #ffeef0; color: #f04452; }
+.ar .t { flex: 1; min-width: 0; font-size: 14px; color: var(--t1); line-height: 1.4; }
+.ar .t .who { font-weight: 700; color: var(--g-d); }
+.ar .t small { display: block; font-size: 12px; color: var(--t3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ar .ago { flex: none; font-size: 12px; color: var(--t4); }

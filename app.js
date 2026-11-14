@@ -233,6 +233,19 @@
     </div>`;
   }
 
+  // 네이버 활동 기록 (11/14 «너가 해 놓은 네이버 활동도 말랑블로그에다가 잘 해 놔 줘») — scripts/inflow.sh 가 공감 돌려준 것
+  function actCard() {
+    const A = (S.data && S.data.activity) || []; if (!A.length) return '';
+    const byId = Object.fromEntries(blogs().map((b) => [b.id, b]));
+    const today = A.filter((a) => a.kind === 'like' && ymd(a.at) === todayY()).length;
+    const row = (a) => { const b = byId[a.blog]; const who = b ? label(b) : a.blog;
+      const what = a.kind === 'like' ? `<b>${esc(a.nick)}</b>님 글에 공감했어요` : `<b>${esc(a.nick)}</b>님은 글이 없어 못 했어요`;
+      const sub = a.kind === 'like' ? `${esc(a.why)} 돌려주기 · ${esc((a.title || '').slice(0, 26))}` : `${esc(a.why)}해 준 분`;
+      return `<${a.url ? `a href="${esc(a.url)}" target="_blank" rel="noopener"` : 'div'} class="ar"><span class="ai ${a.kind}">${a.kind === 'like' ? '♥' : '·'}</span><div class="t"><span class="who">${esc(who)}</span> ${what}<small>${sub}</small></div><span class="ago">${esc(ago(a.at))}</span></${a.url ? 'a' : 'div'}>`; };
+    return `<div class="sec-h"><h2>네이버 활동</h2></div>
+      <div class="card actc"><div class="act-h"><b>오늘 공감 ${today}번</b><span>공감·댓글·이웃 신청해 준 분께 30분마다 공감을 돌려줘요</span></div>${A.slice(0, 6).map(row).join('')}</div>`;
+  }
+
   function homeView() {
     const L = blogs(), mine = L.find((b) => b.who === S.who), mineV = L.filter((b) => b.who === S.who).reduce((s, b) => s + (b.today || 0), 0); // 블로그가 둘이면 합쳐서
     const vis = L.reduce((s, b) => s + (b.today || 0), 0), cn = L.reduce((s, b) => s + todayPosts(b).length, 0);
@@ -244,6 +257,7 @@
       ${adCard()}
       <div class="sec-h"><h2>우리 가족 블로그</h2></div>
       ${L.map(blogCard).join('')}
+      ${actCard()}
       <div class="sec-h"><h2>방금 올라간 글</h2><button class="more" data-go="feed">전체 보기</button></div>
       <div class="card plist">${postRows(allPosts().slice(0, 5))}</div>
       <p class="upd">${S.data.updated ? `${ago(S.data.updated) === '방금' ? '방금' : ago(S.data.updated) + '에'} 새로 모았어요 · 5분마다 바뀌어요` : ''}</p>`;
