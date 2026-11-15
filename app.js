@@ -241,7 +241,7 @@
     const row = (a) => { const b = byId[a.blog]; const who = b ? label(b) : a.blog;
       const ic = { cmt: '💬', buddy: '+', likes: '♥', invite: '+' }[a.kind] || '·';
       const what = a.kind === 'cmt' ? `<b>${esc(a.nick)}</b>님이 댓글을 남겼어요` : a.kind === 'likes' ? `오늘 공감 <b>${a.n}개</b> 받았어요` : a.kind === 'invite' ? `서로이웃 신청 <b>${a.n}건</b>이 기다려요` : `<b>${esc(a.nick)}</b>님 ${esc(a.text || '이웃 소식')}`;
-      const sub = a.kind === 'cmt' ? `“${esc((a.text || '').replace(/\s+/g, ' ').slice(0, 40))}” · ${esc((a.title || '').slice(0, 22))}` : a.kind === 'likes' ? `${esc(a.nick)}${a.n > 3 ? ' 외' : ''}` : a.kind === 'invite' ? '네이버 블로그 앱에서 수락할 수 있어요' : esc((a.title || '').slice(0, 30));
+      const sub = a.kind === 'cmt' ? `“${esc((a.text || '').replace(/\s+/g, ' ').slice(0, 40))}” · ${esc((a.title || '').slice(0, 22))}` : a.kind === 'likes' ? `${esc(a.nick)}${a.n > 3 ? ' 외' : ''}` : a.kind === 'invite' ? `누르면 네이버 내소식으로 가요 · ${a.blog === 'hanonote' ? '하노' : '엄마'} 계정으로 로그인돼 있어야 해요` : esc((a.title || '').slice(0, 30));
       return `<${a.url ? `a href="${esc(a.url)}" target="_blank" rel="noopener"` : 'div'} class="ar"><span class="ai ${a.kind}">${ic}</span><div class="t"><span class="who">${esc(who)}</span> ${what}<small>${sub}</small></div><span class="ago">${esc(ago(a.at))}</span></${a.url ? 'a' : 'div'}>`; };
     return `<div class="sec-h"><h2>네이버 활동</h2></div>
       <div class="card actc"><div class="act-h"><b>받은 댓글·공감·이웃 신청</b><span>1분마다 새로 봐요 · 누르면 그 글 댓글로 가요 · 댓글은 7일 남아요</span></div>${A.slice(0, S.actAll ? 99 : 6).map(row).join('')}${A.length > 6 ? `<button class="act-more" id="actMore" type="button">${S.actAll ? '접기' : `더 보기 (${A.length - 6}개)`}</button>` : ''}</div>`;
@@ -255,11 +255,11 @@
     const hi = mine ? `오늘 ${esc(owner(mine))} 블로그에<br>${mineV ? `<b>${cnt(mineV)}명</b>이 다녀갔어요` : '아직 다녀간 사람이 없어요'}` : '블로그 소식이에요';
     main.innerHTML = `<div class="hello-wrap"><img class="gh-h" src="assets/ghost/${gh}.webp" alt=""><h1 class="hello">${hi}</h1></div>
       ${guideBanner()}
+      ${actCard()}
       ${earnCard(L)}
       ${adCard()}
       <div class="sec-h"><h2>우리 가족 블로그</h2></div>
       ${L.map(blogCard).join('')}
-      ${actCard()}
       <div class="sec-h"><h2>방금 올라간 글</h2><button class="more" data-go="feed">전체 보기</button></div>
       <div class="card plist">${postRows(allPosts().slice(0, 5))}</div>
       <p class="upd">${S.data.updated ? `${ago(S.data.updated) === '방금' ? '방금' : ago(S.data.updated) + '에'} 새로 모았어요 · 5분마다 바뀌어요` : ''}</p>`;
