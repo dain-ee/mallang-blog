@@ -241,13 +241,13 @@
     const row = (a) => { const b = byId[a.blog]; const who = b ? label(b) : a.blog;
       const ic = { cmt: '💬', buddy: '+', likes: '♥', invite: '+' }[a.kind] || '·';
       const what = a.kind === 'cmt' ? `<b>${esc(a.nick)}</b>님이 댓글을 남겼어요` : a.kind === 'likes' ? `오늘 공감 <b>${a.n}개</b> 받았어요` : a.kind === 'invite' ? `서로이웃 신청 <b>${a.n}건</b>이 기다려요` : `<b>${esc(a.nick)}</b>님 ${esc(a.text || '이웃 소식')}`;
-      const sub = a.kind === 'cmt' ? `“${esc((a.text || '').replace(/\s+/g, ' ').slice(0, 40))}” · ${esc((a.title || '').slice(0, 22))}` : a.kind === 'likes' ? `${esc(a.nick)}${a.n > 3 ? ' 외' : ''}` : a.kind === 'invite' ? `누르면 네이버 내소식으로 가요 · ${a.blog === 'hanonote' ? '하노' : '엄마'} 계정으로 로그인돼 있어야 해요` : esc((a.title || '').slice(0, 30));
+      const sub = a.kind === 'cmt' ? `“${esc((a.text || '').replace(/\s+/g, ' ').slice(0, 40))}” · ${esc((a.title || '').slice(0, 22))}` : a.kind === 'likes' ? `${esc(a.nick)}${a.n > 3 ? ' 외' : ''}` : a.kind === 'invite' ? `누르면 바로 수락 화면으로 가요 · ${a.blog === 'hanonote' ? '하노' : '엄마'} 계정으로 로그인돼 있어야 해요` : esc((a.title || '').slice(0, 30));
       return `<${a.url ? `a href="${esc(a.url)}" target="_blank" rel="noopener"` : 'div'} class="ar"><span class="ai ${a.kind}">${ic}</span><div class="t"><span class="who">${esc(who)}</span> ${what}<small>${sub}</small></div><span class="ago">${esc(ago(a.at))}</span></${a.url ? 'a' : 'div'}>`; };
     return `<div class="sec-h"><h2>네이버 활동</h2></div>
       <div class="card actc"><div class="act-h"><b>받은 댓글·공감·이웃 신청</b><span>1분마다 새로 봐요 · 누르면 그 글 댓글로 가요 · 댓글은 7일 남아요</span></div>${A.slice(0, S.actAll ? 99 : 6).map(row).join('')}${A.length > 6 ? `<button class="act-more" id="actMore" type="button">${S.actAll ? '접기' : `더 보기 (${A.length - 6}개)`}</button>` : ''}</div>`;
   }
 
-  document.addEventListener('click', (e) => { if (e.target && e.target.id === 'actMore') { S.actAll = !S.actAll; const y = main.scrollTop; homeView(); main.scrollTop = y; } });
+  document.addEventListener('click', (e) => { const mb = e.target && e.target.closest && e.target.closest('#actMore'); if (mb) { e.preventDefault(); S.actAll = !S.actAll; const y = main.scrollTop; homeView(); main.scrollTop = y; } });
   function homeView() {
     const L = blogs(), mine = L.find((b) => b.who === S.who), mineV = L.filter((b) => b.who === S.who).reduce((s, b) => s + (b.cv ?? b.today ?? 0), 0), mineCv = L.some((b) => b.who === S.who && b.cv != null); // 블로그가 둘이면 합쳐서
     const vis = L.reduce((s, b) => s + (b.today || 0), 0), cn = L.reduce((s, b) => s + todayPosts(b).length, 0);
