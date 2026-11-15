@@ -234,17 +234,17 @@
     </div>`;
   }
 
-  // 네이버 활동 기록 (11/14 «너가 해 놓은 네이버 활동도 말랑블로그에다가 잘 해 놔 줘») — scripts/inflow.sh 가 공감 돌려준 것
+  // 네이버 활동 = 받은 것 (11/15 «공감은 실시간 뉴스처럼 필요 없음… 누가 댓글 달았으면, 이웃 신청 왔다고») — collect.js 가 네이버 내소식을 10분마다
   function actCard() {
     const A = (S.data && S.data.activity) || []; if (!A.length) return '';
     const byId = Object.fromEntries(blogs().map((b) => [b.id, b]));
-    const today = A.filter((a) => a.kind === 'like' && ymd(a.at) === todayY()).length;
     const row = (a) => { const b = byId[a.blog]; const who = b ? label(b) : a.blog;
-      const what = a.kind === 'like' ? `<b>${esc(a.nick)}</b>님 글에 공감했어요` : `<b>${esc(a.nick)}</b>님은 글이 없어 못 했어요`;
-      const sub = a.kind === 'like' ? `${esc(a.why)} 돌려주기 · ${esc((a.title || '').slice(0, 26))}` : `${esc(a.why)}해 준 분`;
-      return `<${a.url ? `a href="${esc(a.url)}" target="_blank" rel="noopener"` : 'div'} class="ar"><span class="ai ${a.kind}">${a.kind === 'like' ? '♥' : '·'}</span><div class="t"><span class="who">${esc(who)}</span> ${what}<small>${sub}</small></div><span class="ago">${esc(ago(a.at))}</span></${a.url ? 'a' : 'div'}>`; };
+      const ic = { cmt: '💬', buddy: '+', likes: '♥', invite: '+' }[a.kind] || '·';
+      const what = a.kind === 'cmt' ? `<b>${esc(a.nick)}</b>님이 댓글을 남겼어요` : a.kind === 'likes' ? `오늘 공감 <b>${a.n}개</b> 받았어요` : a.kind === 'invite' ? `서로이웃 신청 <b>${a.n}건</b>이 기다려요` : `<b>${esc(a.nick)}</b>님 ${esc(a.text || '이웃 소식')}`;
+      const sub = a.kind === 'cmt' ? `“${esc((a.text || '').replace(/\s+/g, ' ').slice(0, 40))}” · ${esc((a.title || '').slice(0, 22))}` : a.kind === 'likes' ? `${esc(a.nick)}${a.n > 3 ? ' 외' : ''}` : a.kind === 'invite' ? '네이버 블로그 앱에서 수락할 수 있어요' : esc((a.title || '').slice(0, 30));
+      return `<${a.url ? `a href="${esc(a.url)}" target="_blank" rel="noopener"` : 'div'} class="ar"><span class="ai ${a.kind}">${ic}</span><div class="t"><span class="who">${esc(who)}</span> ${what}<small>${sub}</small></div><span class="ago">${esc(ago(a.at))}</span></${a.url ? 'a' : 'div'}>`; };
     return `<div class="sec-h"><h2>네이버 활동</h2></div>
-      <div class="card actc"><div class="act-h"><b>오늘 공감 ${today}번</b><span>공감·댓글·이웃 신청해 준 분께 30분마다 공감을 돌려줘요</span></div>${A.slice(0, 6).map(row).join('')}</div>`;
+      <div class="card actc"><div class="act-h"><b>받은 댓글·공감·이웃 신청</b><span>10분마다 새로 봐요 · 하루 지나면 사라져요</span></div>${A.slice(0, 8).map(row).join('')}</div>`;
   }
 
   function homeView() {
