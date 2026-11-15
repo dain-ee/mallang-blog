@@ -225,7 +225,7 @@
     return `<div class="card link" data-blog="${esc(b.id)}">
       <div class="blog-h"><img class="ava" src="${esc(b.photo)}" alt="" onerror="this.style.visibility='hidden'">
         <div class="nm"><b>${esc(b.name)} ${chip(b)}</b><span>${esc(owner(b))} 블로그 · ${esc(b.id)}</span></div><span class="chev">›</span></div>
-      <div class="stats"><div><div class="k">오늘 방문자</div><div class="v big num">${cnt(b.today)}</div></div>
+      <div class="stats"><div><div class="k">${b.cv != null ? '오늘 조회수' : '오늘 방문자'}</div><div class="v big num">${cnt(b.cv ?? b.today)}</div></div>
         <div><div class="k">오늘 올린 글</div><div class="v num">${tp}개</div></div>
         <div><div class="k">이웃</div><div class="v num">${cnt(b.neighbors)}</div></div></div>
       ${inflowBox(b)}
@@ -249,10 +249,10 @@
 
   document.addEventListener('click', (e) => { if (e.target && e.target.id === 'actMore') { S.actAll = !S.actAll; const y = main.scrollTop; homeView(); main.scrollTop = y; } });
   function homeView() {
-    const L = blogs(), mine = L.find((b) => b.who === S.who), mineV = L.filter((b) => b.who === S.who).reduce((s, b) => s + (b.today || 0), 0); // 블로그가 둘이면 합쳐서
+    const L = blogs(), mine = L.find((b) => b.who === S.who), mineV = L.filter((b) => b.who === S.who).reduce((s, b) => s + (b.cv ?? b.today ?? 0), 0), mineCv = L.some((b) => b.who === S.who && b.cv != null); // 블로그가 둘이면 합쳐서
     const vis = L.reduce((s, b) => s + (b.today || 0), 0), cn = L.reduce((s, b) => s + todayPosts(b).length, 0);
     const gh = cn ? 'yay' : 'idle';
-    const hi = mine ? `오늘 ${esc(owner(mine))} 블로그에<br>${mineV ? `<b>${cnt(mineV)}명</b>이 다녀갔어요` : '아직 다녀간 사람이 없어요'}` : '블로그 소식이에요';
+    const hi = mine ? `오늘 ${esc(owner(mine))} 블로그에<br>${mineV ? (mineCv ? `조회수 <b>${cnt(mineV)}회</b>예요` : `<b>${cnt(mineV)}명</b>이 다녀갔어요`) : '아직 다녀간 사람이 없어요'}` : '블로그 소식이에요';
     main.innerHTML = `<div class="hello-wrap"><img class="gh-h" src="assets/ghost/${gh}.webp" alt=""><h1 class="hello">${hi}</h1></div>
       ${guideBanner()}
       ${earnCard(L)}
@@ -347,13 +347,13 @@
   function detailView(b) {
     if (!b) { S.blog = null; return homeView(); }
     const days = []; for (let i = 6; i >= 0; i--) days.push(ymd(Date.now() - i * 864e5));
-    const H = b.hist || {}, max = Math.max(1, ...days.map((d) => H[d] || 0));
+    const H = b.cvHist || b.hist || {}, max = Math.max(1, ...days.map((d) => H[d] || 0));
     const known = days.filter((d) => H[d] != null).length;
     main.innerHTML = `<button class="back" id="back">‹ 뒤로</button>
       <div class="card" style="margin-top:8px"><div class="blog-h"><img class="ava" src="${esc(b.photo)}" alt="" onerror="this.style.visibility='hidden'"><div class="nm"><b>${esc(b.name)} ${chip(b)}</b><span>${esc(b.intro || b.id).replace(/\n/g, ' ')}</span></div></div>
-        <div class="stats"><div><div class="k">오늘 방문자</div><div class="v big num">${cnt(b.today)}</div></div><div><div class="k">전체 방문자</div><div class="v num">${cnt(b.total)}</div></div><div><div class="k">이웃</div><div class="v num">${cnt(b.neighbors)}</div></div></div>
+        <div class="stats"><div><div class="k">${b.cv != null ? '오늘 조회수' : '오늘 방문자'}</div><div class="v big num">${cnt(b.cv ?? b.today)}</div></div><div><div class="k">전체 방문자</div><div class="v num">${cnt(b.total)}</div></div><div><div class="k">이웃</div><div class="v num">${cnt(b.neighbors)}</div></div></div>
         <a class="btn sub" style="margin-top:18px" href="${esc(b.url)}" target="_blank" rel="noopener">블로그 열기</a></div>
-      <div class="sec-h"><h2>최근 7일 방문자</h2></div>
+      <div class="sec-h"><h2>최근 7일 ${b.cvHist ? '조회수' : '방문자'}</h2></div>
       <div class="card"><div class="bars">${days.map((d, k) => `<div class="b ${d === todayY() ? 'today' : ''}" style="--k:${k}"><u class="num">${H[d] != null ? fmt(H[d]) : ''}</u><i style="height:${H[d] != null ? Math.max(4, Math.round((H[d] / max) * 96)) : 0}px"></i><em>${d === todayY() ? '오늘' : +d.slice(8)}</em></div>`).join('')}</div>
         ${known < 7 ? '<p class="note">말랑블로그를 연 날부터 하루씩 쌓여요. 오늘은 지금까지 다녀간 수예요.</p>' : ''}</div>
       ${(b.reserved || []).length ? `<div class="sec-h"><h2>올라갈 예정</h2><span class="more">${b.reserved.length}개</span></div><div class="card plist">${resRows(b.reserved.map((r) => ({ ...r, b })))}</div>` : ''}
