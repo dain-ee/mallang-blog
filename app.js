@@ -513,6 +513,11 @@
     document.addEventListener('visibilitychange', () => { if (!document.hidden && S.data) refresh(); });
     // 11/14 «백그라운드로 업데이트 좀 잘해야» — 켜 둔 동안 1분마다 조용히 새로 받아, 바뀐 게 있을 때만 그 자리에서 다시 그림
     setInterval(() => { if (!document.hidden && S.data) quiet(); }, 30e3);
+    // 새로 배포되면 알아서 새 화면으로(홈 화면 앱이 옛 app.js 를 붙드는 문제, 11/15)
+    const myV = (document.querySelector('script[src*="app.js?v="]') || {}).src?.split('v=')[1];
+    const vCheck = async () => { try { const h = await (await fetch('./?nc=' + Date.now(), { cache: 'no-store' })).text(); const v = (h.match(/app\.js\?v=(\d+)/) || [])[1]; if (myV && v && v !== myV) location.reload(); } catch (e) {} };
+    setInterval(() => { if (!document.hidden) vCheck(); }, 120e3);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) vCheck(); });
     addEventListener('online', () => S.data && quiet());
     addEventListener('focus', () => S.data && quiet());
     if (navigator.serviceWorker) navigator.serviceWorker.addEventListener('message', (e) => { if (e.data === 'mb:push' && S.data) quiet(); });
