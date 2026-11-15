@@ -252,7 +252,7 @@
     const L = blogs(), mine = L.find((b) => b.who === S.who), mineV = L.filter((b) => b.who === S.who).reduce((s, b) => s + (b.cv ?? b.today ?? 0), 0), mineCv = L.some((b) => b.who === S.who && b.cv != null); // 블로그가 둘이면 합쳐서
     const vis = L.reduce((s, b) => s + (b.today || 0), 0), cn = L.reduce((s, b) => s + todayPosts(b).length, 0);
     const gh = cn ? 'yay' : 'idle';
-    const hi = mine ? `오늘 ${esc(owner(mine))} 블로그에<br>${mineV ? (mineCv ? `조회수 <b>${cnt(mineV)}회</b>예요` : `<b>${cnt(mineV)}명</b>이 다녀갔어요`) : '아직 다녀간 사람이 없어요'}` : '블로그 소식이에요';
+    const hi = mine ? `오늘 ${esc(owner(mine))} 블로그${mineCv ? '' : '에'}<br>${mineV ? (mineCv ? `조회수 <b>${cnt(mineV)}회</b>예요` : `<b>${cnt(mineV)}명</b>이 다녀갔어요`) : '아직 다녀간 사람이 없어요'}` : '블로그 소식이에요';
     main.innerHTML = `<div class="hello-wrap"><img class="gh-h" src="assets/ghost/${gh}.webp" alt=""><h1 class="hello">${hi}</h1></div>
       ${guideBanner()}
       ${earnCard(L)}
