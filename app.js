@@ -244,7 +244,7 @@
       const sub = a.kind === 'cmt' ? `“${esc((a.text || '').replace(/\s+/g, ' ').slice(0, 40))}” · ${esc((a.title || '').slice(0, 22))}` : a.kind === 'likes' ? `${esc(a.nick)}${a.n > 3 ? ' 외' : ''}` : a.kind === 'invite' ? '네이버 블로그 앱에서 수락할 수 있어요' : esc((a.title || '').slice(0, 30));
       return `<${a.url ? `a href="${esc(a.url)}" target="_blank" rel="noopener"` : 'div'} class="ar"><span class="ai ${a.kind}">${ic}</span><div class="t"><span class="who">${esc(who)}</span> ${what}<small>${sub}</small></div><span class="ago">${esc(ago(a.at))}</span></${a.url ? 'a' : 'div'}>`; };
     return `<div class="sec-h"><h2>네이버 활동</h2></div>
-      <div class="card actc"><div class="act-h"><b>받은 댓글·공감·이웃 신청</b><span>10분마다 새로 봐요 · 누르면 그 글 댓글로 가요 · 댓글은 7일 남아요</span></div>${A.slice(0, S.actAll ? 99 : 6).map(row).join('')}${A.length > 6 ? `<button class="act-more" id="actMore" type="button">${S.actAll ? '접기' : `더 보기 (${A.length - 6}개)`}</button>` : ''}</div>`;
+      <div class="card actc"><div class="act-h"><b>받은 댓글·공감·이웃 신청</b><span>1분마다 새로 봐요 · 누르면 그 글 댓글로 가요 · 댓글은 7일 남아요</span></div>${A.slice(0, S.actAll ? 99 : 6).map(row).join('')}${A.length > 6 ? `<button class="act-more" id="actMore" type="button">${S.actAll ? '접기' : `더 보기 (${A.length - 6}개)`}</button>` : ''}</div>`;
   }
 
   document.addEventListener('click', (e) => { if (e.target && e.target.id === 'actMore') { S.actAll = !S.actAll; const y = main.scrollTop; homeView(); main.scrollTop = y; } });
@@ -391,7 +391,7 @@
     else top = `<div class="card list">${li('bell', 'g' + (justOn ? ' ring' : ''), '새 글 알림', on ? '켜져 있어요 · 글이 올라가면 바로 알려 드려요' : '글이 올라가면 바로 알려 드려요', `<button class="sw ${on ? 'on' : ''}${justOn ? ' just' : ''}" id="sw" role="switch" aria-checked="${on}" aria-label="새 글 알림"></button>`)}</div>`;
     main.innerHTML = `<div class="hello-wrap"><img class="gh-h" src="assets/ghost/peek.webp" alt=""><h1 class="hello">알림</h1></div>${top}
       <div class="day-h">어떤 알림이 오나요?</div>
-      <div class="card list">${li('cal', 'g', '예약한 글이 올라갔어요', '예약해 둔 내 글이 실제로 올라가면')}${li('fam', 'b', '가족 새 글', `${esc(fam)} 블로그에 새 글이 올라오면`)}${li('fam', 'b', '새 댓글·이웃 신청', '내 글에 댓글이 달리거나 이웃 신청이 오면 · 누르면 그 댓글로')}${li('views', 'g', '오늘 방문자 100명마다', '100명, 200명… 넘을 때마다')}${li('clock', 'a', '자주 확인', '새 글은 1~5분, 댓글은 10분마다 살펴봐요')}</div>
+      <div class="card list">${li('cal', 'g', '예약한 글이 올라갔어요', '예약해 둔 내 글이 실제로 올라가면')}${li('fam', 'b', '가족 새 글', `${esc(fam)} 블로그에 새 글이 올라오면`)}${li('fam', 'b', '새 댓글·이웃 신청', '내 글에 댓글이 달리거나 이웃 신청이 오면 · 누르면 그 댓글로')}${li('views', 'g', '오늘 방문자 100명마다', '100명, 200명… 넘을 때마다')}${li('clock', 'a', '자주 확인', '새 글·댓글·방문자를 1분마다 살펴봐요')}</div>
       <div class="day-h">들어와 있는 사람</div>
       <div class="card list"><button class="li link" id="logout" type="button"><span class="ic gray">${myBlog() && myBlog().photo ? `<img src="${esc(myBlog().photo)}" alt="" onerror="this.replaceWith(document.createRange().createContextualFragment(ICON_P))">` : ICON.person}</span><div class="tx"><b>${esc(meName())}</b><span>${esc(S.who)}로 들어와 있어요</span></div><span class="act">바꾸기<i>›</i></span></button></div>`;
     $('#logout').onclick = logout;
@@ -512,7 +512,7 @@
     }
     document.addEventListener('visibilitychange', () => { if (!document.hidden && S.data) refresh(); });
     // 11/14 «백그라운드로 업데이트 좀 잘해야» — 켜 둔 동안 1분마다 조용히 새로 받아, 바뀐 게 있을 때만 그 자리에서 다시 그림
-    setInterval(() => { if (!document.hidden && S.data) quiet(); }, 60e3);
+    setInterval(() => { if (!document.hidden && S.data) quiet(); }, 30e3);
     addEventListener('online', () => S.data && quiet());
     addEventListener('focus', () => S.data && quiet());
     if (navigator.serviceWorker) navigator.serviceWorker.addEventListener('message', (e) => { if (e.data === 'mb:push' && S.data) quiet(); });
