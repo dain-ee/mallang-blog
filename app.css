@@ -403,3 +403,11 @@ body { display: flex; flex-direction: column; height: 100dvh; }
 .vrow .vb em { font-style: normal; font-size: 13px; font-weight: 700; color: var(--t1); }
 
 .act-more { display: block; width: 100%; padding: 14px; border: 0; border-top: 1px solid var(--fill); background: none; color: var(--t3); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+/* 사람별 묶음 (11/15) */
+.fam-g { background: var(--fill2); border: 1px solid var(--line); border-radius: calc(var(--r-card) + 6px); padding: 14px 8px 8px; }
+.fam-g + .fam-g { margin-top: 16px; }
+.fam-h { display: flex; align-items: baseline; gap: 8px; padding: 0 10px 12px; }
+.fam-h b { font-size: 17px; font-weight: 700; color: var(--t1); }
+.fam-h span { font-size: 14px; color: var(--t3); }
+.fam-g .card + .card { margin-top: 8px; }

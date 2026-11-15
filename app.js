@@ -248,6 +248,14 @@
   }
 
   document.addEventListener('click', (e) => { const mb = e.target && e.target.closest && e.target.closest('#actMore'); if (mb) { e.preventDefault(); S.actAll = !S.actAll; const y = main.scrollTop; homeView(); main.scrollTop = y; } });
+  // 사람별로 묶기 (11/15 «한 사람이 엮여 있는 블로그는 홈에서 같이 있으면 좋겠는데 … 아빠 거 3개인데 다 따로따로»)
+  function famGroups(L) {
+    const g = []; L.forEach((b) => { let x = g.find((y) => y.who === b.who); if (!x) g.push((x = { who: b.who, L: [] })); x.L.push(b); });
+    return g.map((x) => { const b0 = x.L[0], nm = x.who === S.who ? '나' : x.who === '나' ? b0.nick || '하노' : x.who;
+      const cv = x.L.some((b) => b.cv != null), v = x.L.reduce((s, b) => s + (b.cv ?? b.today ?? 0), 0);
+      return `<div class="fam-g"><div class="fam-h"><b>${esc(nm)}</b><span>블로그 ${x.L.length}개 · 오늘 ${cv ? '조회수' : '방문자'} ${cnt(v)}</span></div>${x.L.map(blogCard).join('')}</div>`; }).join('');
+  }
+
   function homeView() {
     const L = blogs(), mine = L.find((b) => b.who === S.who), mineV = L.filter((b) => b.who === S.who).reduce((s, b) => s + (b.cv ?? b.today ?? 0), 0), mineCv = L.some((b) => b.who === S.who && b.cv != null); // 블로그가 둘이면 합쳐서
     const vis = L.reduce((s, b) => s + (b.today || 0), 0), cn = L.reduce((s, b) => s + todayPosts(b).length, 0);
@@ -258,7 +266,7 @@
       ${earnCard(L)}
       ${adCard()}
       <div class="sec-h"><h2>우리 가족 블로그</h2></div>
-      ${L.map(blogCard).join('')}
+      ${famGroups(L)}
       ${actCard()}
       <div class="sec-h"><h2>방금 올라간 글</h2><button class="more" data-go="feed">전체 보기</button></div>
       <div class="card plist">${postRows(allPosts().slice(0, 5))}</div>
