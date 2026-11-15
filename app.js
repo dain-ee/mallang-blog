@@ -255,11 +255,11 @@
     const hi = mine ? `오늘 ${esc(owner(mine))} 블로그에<br>${mineV ? `<b>${cnt(mineV)}명</b>이 다녀갔어요` : '아직 다녀간 사람이 없어요'}` : '블로그 소식이에요';
     main.innerHTML = `<div class="hello-wrap"><img class="gh-h" src="assets/ghost/${gh}.webp" alt=""><h1 class="hello">${hi}</h1></div>
       ${guideBanner()}
-      ${actCard()}
       ${earnCard(L)}
       ${adCard()}
       <div class="sec-h"><h2>우리 가족 블로그</h2></div>
       ${L.map(blogCard).join('')}
+      ${actCard()}
       <div class="sec-h"><h2>방금 올라간 글</h2><button class="more" data-go="feed">전체 보기</button></div>
       <div class="card plist">${postRows(allPosts().slice(0, 5))}</div>
       <p class="upd">${S.data.updated ? `${ago(S.data.updated) === '방금' ? '방금' : ago(S.data.updated) + '에'} 새로 모았어요 · 5분마다 바뀌어요` : ''}</p>`;
