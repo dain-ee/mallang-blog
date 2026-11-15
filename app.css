@@ -401,3 +401,5 @@ body { display: flex; flex-direction: column; height: 100dvh; }
 .vrow .vb { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
 .vrow .vb i { display: block; height: 6px; border-radius: 3px; background: var(--g); min-width: 4px; }
 .vrow .vb em { font-style: normal; font-size: 13px; font-weight: 700; color: var(--t1); }
+
+.act-more { display: block; width: 100%; padding: 14px; border: 0; border-top: 1px solid var(--fill); background: none; color: var(--t3); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
