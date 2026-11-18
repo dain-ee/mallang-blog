@@ -278,7 +278,9 @@
   const won = (n) => `${cnt(n)}<small>원</small>`;
   function earnCard(all) {
     // 11/18 «우리 가족 번 돈에 왜 아빠 거 안 나와 — 총 6개가 나와야지» → 블로그 6개 모두. 돈은 블로그별(E[id])이 있으면 그것, 없으면 사람별(E[who])을 그 사람 첫 블로그에만(합계 두 번 안 셈)
-    const L = all;
+    // 11/18 «아빠는 봄똥골프·예기자·하프타임 수익이 봄똥골프 하나에 모여 — 아빠는 한 개로» → 아빠 블로그는 한 줄로 합침
+    const dads = all.filter((b) => b.who === '아빠');
+    const L = all.filter((b) => b.who !== '아빠').concat(dads.length ? [{ ...dads[0], name: dads.map((b) => b.name).join(' · ') }] : []);
     const E = (S.data && S.data.earn) || {}, firstOf = {};
     L.forEach((b) => { if (!(b.who in firstOf)) firstOf[b.who] = b.id; });
     const val = (b) => E[b.id] || (firstOf[b.who] === b.id ? E[b.who] : null);
