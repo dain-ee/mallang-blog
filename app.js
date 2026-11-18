@@ -277,10 +277,14 @@
   // 가족별 번 돈 (11/14 «가족별로 번 돈 이게 가장 중요해») · 자료: data.earn = { 나: {month, today, total, at}, … }
   const won = (n) => `${cnt(n)}<small>원</small>`;
   function earnCard(all) {
-    const L = all.filter((b) => b.who !== '아빠'); // 11/14 사용자 결정: 아빠는 빼고 나·엄마만
-    const E = (S.data && S.data.earn) || {}, has = L.filter((b) => E[b.who] && E[b.who].month != null);
-    const sum = has.reduce((s, b) => s + (+E[b.who].month || 0), 0), sumT = has.reduce((s, b) => s + (+E[b.who].today || 0), 0);
-    const row = (b) => { const e = E[b.who];
+    // 11/18 «우리 가족 번 돈에 왜 아빠 거 안 나와 — 총 6개가 나와야지» → 블로그 6개 모두. 돈은 블로그별(E[id])이 있으면 그것, 없으면 사람별(E[who])을 그 사람 첫 블로그에만(합계 두 번 안 셈)
+    const L = all;
+    const E = (S.data && S.data.earn) || {}, firstOf = {};
+    L.forEach((b) => { if (!(b.who in firstOf)) firstOf[b.who] = b.id; });
+    const val = (b) => E[b.id] || (firstOf[b.who] === b.id ? E[b.who] : null);
+    const has = L.filter((b) => { const e = val(b); return e && e.month != null; });
+    const sum = has.reduce((s, b) => s + (+val(b).month || 0), 0), sumT = has.reduce((s, b) => s + (+val(b).today || 0), 0);
+    const row = (b) => { const e = val(b);
       const right = e && e.month != null
         ? `<b class="num">${won(e.month)}</b><span>${e.today != null ? `오늘 +${fmt(e.today)}원` : e.at ? `${esc(ago(e.at))} 기준` : '이번 달'}</span>`
         : `<b class="num">${won(0)}</b><span>이번 달</span>`;
