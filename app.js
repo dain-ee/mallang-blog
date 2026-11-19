@@ -341,7 +341,7 @@
       return b.views.filter((v) => v.date === todayY() || v.items.some((x) => x.cv > 0)).map((v) => {
         const items = v.items.filter((x) => x.cv > 0), max = Math.max(1, ...items.map((x) => x.cv)), sum = items.reduce((s, x) => s + x.cv, 0);
         const head = v.date === todayY() ? `오늘 · ${hm(v.at)} 기준` : dayLabel(v.date);
-        return `<div class="day-h">${esc(head)} · 조회 ${fmt(sum)}</div><div class="card plist">${items.length ? items.map((x, i) => `<a class="prow vrow" href="${esc(x.link)}" target="_blank" rel="noopener"><span class="vrk ${i < 3 ? 'top' : ''}">${i + 1}</span>${img[x.link] ? `<img class="th" src="${esc(img[x.link])}" alt="" loading="lazy" onerror="this.remove()">` : ''}
+        return `<div class="day-h">${esc(head)} · 조회 ${fmt(sum)}</div><div class="card plist">${items.length ? items.map((x, i) => `<a class="prow vrow" href="${esc(x.link)}" target="_blank" rel="noopener"><span class="vrk ${i < 3 ? 'top' : ''}">${i + 1}</span>${(img[x.link] || x.img) ? `<img class="th" src="${esc(img[x.link] || x.img)}" alt="" loading="lazy" onerror="this.remove()">` : ''}
           <div class="t"><b>${esc(x.title || '(제목 없는 옛 글)')}</b><span class="vb"><i style="width:${Math.max(4, Math.round((x.cv / max) * 100))}%"></i><em class="num">${fmt(x.cv)}</em></span></div></a>`).join('') : '<div class="empty">아직 읽은 사람이 없어요</div>'}</div>`;
       }).join('');
     };
